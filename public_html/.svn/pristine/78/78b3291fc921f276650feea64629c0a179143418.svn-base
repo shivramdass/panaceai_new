@@ -1,0 +1,14 @@
+@charset "utf-8";
+/* CSS Document */
+
+@font-face {
+    font-family: OpenSansHebrew-Light;
+    src: url(../fonts/OpenSansHebrew-Light.ttf);
+}
+
+@font-face {
+    font-family:OpenSansHebrew-Bold;
+    src: url(../fonts/OpenSansHebrew-Bold.ttf);
+}
+
+

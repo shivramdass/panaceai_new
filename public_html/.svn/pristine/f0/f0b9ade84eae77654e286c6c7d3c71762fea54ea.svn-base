@@ -1,0 +1,118 @@
+.form-group-custom {
+    position: absolute;
+    right: 242px;
+    z-index: 9;
+    width: 230px;
+    background: #fff;
+}
+.fa_icon{
+	font-size:25px;
+}
+
+.delete_btn::before{
+	content:"|";
+	color:#ccc;
+}
+.delete_btn{
+	border:none;
+	color:#ff0000;
+	background-color:#ffffff;
+	padding-left: 0px;
+}
+
+.questionnaire_heading{
+    font-size: 22px;
+    font-weight: 600;
+    border: none;
+}
+.questionnaire_heading label{
+	font-weight: 600 !important;
+    border-bottom: 1px solid #6978826b;
+}
+.select-style select {
+    padding: 0px 8px;
+    width: 100%;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    background-position: right;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    line-height: 37px;
+    height: 37px;
+    outline: 0;
+}
+.select-style select {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-image: url(../img/select-arrow.png) !important;
+    background-repeat: no-repeat;
+    background-position: right;
+    padding-right: 30px;
+}
+.dropdown-menu {
+    min-width: 120px;
+}
+div.dataTables_filter input {
+    margin-left: 5px;
+}
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+    z-index: 3;
+    color: #fff;
+    background-color: #32c5d2;
+    border-color: #32c5d2;
+    cursor: default;
+}
+.form-group.form-md-line-input.has-info .form-control.edited:not([readonly])~.help-block, .form-group.form-md-line-input.has-info .form-control.edited:not([readonly])~i, .form-group.form-md-line-input.has-info .form-control.edited:not([readonly])~label, .form-group.form-md-line-input.has-info .form-control.focus:not([readonly])~.help-block, .form-group.form-md-line-input.has-info .form-control.focus:not([readonly])~i, .form-group.form-md-line-input.has-info .form-control.focus:not([readonly])~label, .form-group.form-md-line-input.has-info .form-control.form-control-static~.help-block, .form-group.form-md-line-input.has-info .form-control.form-control-static~i, .form-group.form-md-line-input.has-info .form-control.form-control-static~label, .form-group.form-md-line-input.has-info .form-control:focus:not([readonly])~.help-block, .form-group.form-md-line-input.has-info .form-control:focus:not([readonly])~i, .form-group.form-md-line-input.has-info .form-control:focus:not([readonly])~label, .form-group.form-md-line-input.has-info label {
+    color: #27a4b0;
+}
+.btn.blue:not(.btn-outline).active, .btn.blue:not(.btn-outline):active, .btn.blue:not(.btn-outline):hover, .open>.btn.blue:not(.btn-outline).dropdown-toggle {
+    color: #FFF;
+    background-color: #217ebd;
+    border-color: #1f78b5;
+}
+.btn.blue:not(.btn-outline).active, .btn.blue:not(.btn-outline):active, .btn.blue:not(.btn-outline):hover, .open>.btn.blue:not(.btn-outline).dropdown-toggle {
+    color: #FFF;
+    background-color: #2d959f;
+    border-color: #2d959f;
+}
+
+.btn.blue:not(.btn-outline) {
+    color: #FFF;
+    background-color: #27a4b0;
+    border-color: #27a4b0;
+}
+/*
+.table-scrollable {
+    width: 100%;
+    overflow-x: visible;
+    overflow-x: auto !important;
+    overflow-x: scroll !important;
+    overflow-y: visible;
+    border: 1px solid #e7ecf1;
+    margin: 10px 0!important;
+}
+*/
+.table-scrollable {
+    width: 100%;
+    overflow-y: visible;
+    overflow-x: auto;
+    border: 1px solid #e7ecf1;
+    margin: 10px 0!important;
+}
+
+.table-scrollable table tr td:last-child{
+    width: 100px;
+}
+/*.table-scrollable>.table-bordered>tbody>tr:last-child>td{padding-right: 0px;}*/
+/*.btn{margin-right: 10px !important;}*/
+.category-name {
+    width: 50%;
+    float: left;
+    color: #fff;
+    text-align: center;
+    margin-left: 90px;
+    margin-top: 25px;
+    font-size: 24px;
+}
