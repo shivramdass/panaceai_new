@@ -1,0 +1,1 @@
+Not Applicable, This control is not applicable as there is no communication allowed between wireless network & CDE environment.

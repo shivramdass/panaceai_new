@@ -1,0 +1,1695 @@
+!
+! Last configuration change at 18:08:39 IST Tue Jan 5 2021 by 703252945
+! NVRAM config last updated at 18:04:08 IST Tue Jan 5 2021 by 703252945
+!
+version 16.9
+no service pad
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service sequence-numbers
+service unsupported-transceiver
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+!
+hostname IND-CON-GSD-INT-RT-01
+!
+boot-start-marker
+boot system flash bootflash:asr1002x-universalk9.16.09.04.SPA.bin
+boot system flash bootflash:asr1002x-universalk9.03.16.04b.S.155-3.S4b-ext.SPA.bin
+boot-end-marker
+!
+!
+vrf definition In-band-Mgmt
+ !
+ address-family ipv4
+ exit-address-family
+!
+vrf definition Mgmt-intf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+logging buffered 50000
+no logging console
+logging monitor informational
+enable secret 5 $1$E8kY$0iXQ9zqoGEh8u2AMNdSIe0
+!
+aaa new-model
+!
+!
+aaa group server tacacs+ ACSSERVER
+ server name 1
+ server name 2
+ ip vrf forwarding Mgmt-intf
+ ip tacacs source-interface GigabitEthernet0
+!
+aaa authentication login default group ACSSERVER local
+aaa authentication enable default none
+aaa authorization config-commands
+aaa authorization exec default group ACSSERVER if-authenticated 
+aaa authorization commands 1 default group ACSSERVER 
+aaa authorization commands 5 default group ACSSERVER 
+aaa authorization commands 7 default group ACSSERVER 
+aaa authorization commands 15 default group ACSSERVER 
+aaa accounting exec default start-stop group ACSSERVER
+aaa accounting commands 15 default start-stop group ACSSERVER
+aaa accounting system default start-stop group ACSSERVER
+!
+!
+!
+!
+!
+!
+aaa session-id common
+process cpu threshold type total rising 50 interval 5
+process cpu statistics limit entry-percentage 50 size 300
+clock timezone IST 5 30
+no ip source-route
+!
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name genpact.com
+ip domain name vrf Mgmt-intf genpact.com
+ip dhcp excluded-address 182.94.239.1
+ip dhcp excluded-address 182.94.239.2
+ip dhcp excluded-address 182.94.239.3
+ip dhcp excluded-address 182.94.239.4
+ip dhcp excluded-address 182.94.239.5
+ip dhcp excluded-address 182.94.239.6
+ip dhcp excluded-address 182.94.239.7
+ip dhcp excluded-address 182.94.239.8
+ip dhcp excluded-address 182.94.239.9
+ip dhcp excluded-address 182.94.239.10
+ip dhcp excluded-address 182.94.239.11
+ip dhcp excluded-address 182.94.239.12
+ip dhcp excluded-address 182.94.239.13
+ip dhcp excluded-address 182.94.239.14
+ip dhcp excluded-address 182.94.239.15
+ip dhcp excluded-address 182.94.239.16
+ip dhcp excluded-address 182.94.239.17
+!
+ip dhcp pool Genpact-Laptop
+ network 182.94.239.128 255.255.255.192
+ domain-name Genpact-India
+ default-router 182.94.239.129 
+ dns-server 208.67.222.222 4.4.4.4 
+ lease 1 10 30
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+! 
+! 
+! 
+! 
+!
+!
+flow record ipv4
+ match ipv4 tos
+ match ipv4 protocol
+ match ipv4 source address
+ match ipv4 destination address
+ match transport source-port
+ match transport destination-port
+ match interface input
+ collect interface output
+ collect counter bytes long
+ collect counter packets long
+!
+!
+flow exporter NetFlow-to-Orion
+ destination 10.74.172.121
+ source GigabitEthernet0
+ transport udp 2055
+!
+!
+flow monitor NetFlow-Monitor
+ description Original Netflow captures
+ exporter NetFlow-to-Orion
+ cache timeout inactive 10
+ cache timeout active 60
+ record ipv4
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid ASR1002-X sn JAE194804C1
+no license smart enable
+!
+spanning-tree extend system-id
+diagnostic bootup level minimal
+!
+!
+!
+!
+!
+object-group network MALICIOUS_IP_BLOCK 
+ host 202.120.38.243
+ host 138.197.152.102
+ host 38.39.201.117
+ host 149.56.110.57
+ host 64.57.148.50
+ host 80.82.70.140
+ host 185.39.11.105
+ host 210.112.41.71
+ host 85.92.108.246
+ host 144.172.73.39
+ host 157.245.251.187
+ host 93.157.62.102
+ host 80.82.78.85
+ host 45.148.121.124
+ host 89.187.174.198
+ host 114.243.211.182
+ host 139.162.33.228
+ host 185.225.19.240
+ host 84.17.37.239
+ host 95.181.152.6
+ host 91.241.19.122
+!
+!
+!
+username gencore privilege 15 secret 5 $1$beMV$mGlEJkX8N1mSyfDsgIZ7N1
+!
+redundancy
+ mode none
+!
+!
+!
+!
+!
+!
+track 1 ip sla 1
+!
+cdp run
+!
+class-map match-all Business-Critical
+ match ip dscp af31 
+class-map match-all control-plane
+ match ip dscp cs6 
+class-map match-all VIDEO
+ match ip dscp af41 
+class-map match-all VOICE
+ match ip dscp ef 
+class-map match-all BULK-TRAFFIC
+ match ip dscp af21 
+!
+policy-map CHILD-POLICY-ISP1
+ class VOICE
+  priority percent 10
+ class VIDEO
+  priority percent 10
+ class Business-Critical
+  bandwidth percent 10 
+ class BULK-TRAFFIC
+  bandwidth percent 20 
+ class control-plane
+  bandwidth percent 1 
+ class class-default
+  bandwidth percent 49 
+policy-map CHILD-POLICY-ISP2
+ class VOICE
+  priority percent 10
+ class VIDEO
+  priority percent 10
+ class Business-Critical
+  bandwidth percent 10 
+ class BULK-TRAFFIC
+  bandwidth percent 20 
+ class control-plane
+  bandwidth percent 1 
+ class class-default
+  bandwidth percent 49 
+policy-map ISP1-OUT
+ class class-default
+policy-map ISP2-OUT
+ class class-default
+   service-policy CHILD-POLICY-ISP2
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface Loopback0
+ description *** nco-int-asr-02_GENPACT-IER2 ***
+ ip address 124.4.113.26 255.255.255.255
+ no ip redirects
+ no ip proxy-arp
+ ip ospf 101 area 0
+!
+interface Loopback30
+ no ip address
+ shutdown
+!
+interface Loopback40
+ description <<PRIMARY SOURCE FOR ZSCALER NEW DELHI >>
+ ip address 182.94.239.208 255.255.255.255
+ ip ospf 101 area 0
+!
+interface Loopback50
+ description <<PRIMARY PZEN ZScaler SOURCE :: PRIVATE TUNNEL >>
+ ip address 182.94.239.126 255.255.255.255
+ ip ospf 101 area 0
+!
+interface Port-channel10
+ description *** L3 Interface Towards-PALO-ALTO-FW ***
+ mtu 9216
+ ip flow monitor NetFlow-Monitor input
+ no ip address
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ negotiation auto
+!
+interface Port-channel10.1434
+ encapsulation dot1Q 1434
+ ip flow monitor NetFlow-Monitor input
+ ip flow monitor NetFlow-Monitor output
+ ip address 124.4.113.94 255.255.255.248
+ ip nat inside
+ standby 143 ip 124.4.113.92
+ standby 143 priority 200
+ standby 143 preempt
+ ip policy route-map INT_ZSCALAR_POLICY
+!
+interface Port-channel40
+ no ip address
+ negotiation auto
+!
+interface Tunnel40
+ description << Tunnel for ZSCALAR-NEW DELHI | PRIMARY |  >>
+ ip flow monitor NetFlow-Monitor input
+ ip address 172.20.117.137 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ shutdown
+ keepalive 10 3
+ tunnel source 182.94.239.208
+ tunnel destination 165.225.124.12
+ ip virtual-reassembly
+!
+interface Tunnel41
+ description << Tunnel for ZSCALAR-MUMBDAI-VI | SECONDARY |  >>
+ ip flow monitor NetFlow-Monitor input
+ ip address 172.20.117.141 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ keepalive 10 3
+ tunnel source 182.94.239.208
+ tunnel destination 165.225.120.12
+ ip virtual-reassembly
+!
+interface Tunnel50
+ description << Tunnel for ZSCALAR TO MUMBAI HUB PRIMARY | ALWAYS UP >>
+ ip flow monitor NetFlow-Monitor input
+ ip address 172.19.135.33 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ keepalive 10 3
+ tunnel source 125.23.240.158
+ tunnel destination 165.225.106.32
+ ip virtual-reassembly
+!
+interface Tunnel51
+ description << Tunnel for ZSCALAR TO CHENNAI HUB SECONDARY | KEEP SHUTDOWN >>
+ ip address 172.19.135.37 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ shutdown
+ keepalive 10 3
+ tunnel source 125.23.240.158
+ tunnel destination 165.225.104.32
+ ip virtual-reassembly
+!
+interface Tunnel100
+ description << PRIMARY PZEN ZScaler TUNNEL :: PRIVATE TUNNEL >>
+ ip flow monitor NetFlow-Monitor input
+ ip address 172.20.29.145 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ keepalive 10 3
+ tunnel source Loopback50
+ tunnel destination 104.129.202.118
+ ip virtual-reassembly
+!
+interface GigabitEthernet0/0/0
+ description **Connected to PA-FW via Port-channl10***
+ mtu 9216
+ ip flow monitor NetFlow-Monitor input
+ no ip address
+ negotiation auto
+ channel-group 10 mode active
+!
+interface GigabitEthernet0/0/1
+ description **Connected to PA-FW via Port-channl10***
+ mtu 9216
+ ip flow monitor NetFlow-Monitor input
+ no ip address
+ negotiation auto
+ channel-group 10 mode active
+!
+interface GigabitEthernet0/0/2
+ description *** To-Internet Peer-ASR1002X-2 at COLO DC ***
+ mtu 9216
+ ip flow monitor NetFlow-Monitor input
+ ip address 124.4.113.114 255.255.255.252
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat outside
+ ip ospf authentication-key 7 045A0F0B062F6C490C
+ ip ospf network point-to-point
+ ip ospf 101 area 0
+ load-interval 30
+ carrier-delay down msec 0
+ negotiation auto
+ cdp enable
+ bfd interval 50 min_rx 50 multiplier 3
+!
+interface GigabitEthernet0/0/3
+ description INTINDCONAIRPRIUNMSHA $1024Mbps
+ ip flow monitor NetFlow-Monitor input
+ ip address 125.23.240.158 255.255.255.252
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat outside
+ ip access-group test in
+ load-interval 30
+ shutdown
+ negotiation auto
+ service-policy output ISP1-OUT
+!
+interface GigabitEthernet0/0/4
+ description INTINDCONJIOPRIUNMSHA $1000Mbps
+ ip flow monitor NetFlow-Monitor input
+ ip address 136.232.138.70 255.255.255.252
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat outside
+ ip access-group JIO-ISP-IN in
+ load-interval 30
+ negotiation auto
+ service-policy output ISP1-OUT
+!
+interface GigabitEthernet0/0/5
+ description ##Conn To Genpact-Outside_Switch#*Temp Te1/1/1*
+ ip flow monitor NetFlow-Monitor input
+ ip address 182.94.239.129 255.255.255.192
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat inside
+ negotiation auto
+!
+interface TenGigabitEthernet0/1/0
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet0/2/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0
+ description *** Link To Oot-Of-Band MGMT ***
+ vrf forwarding Mgmt-intf
+ ip address 10.70.244.60 255.255.255.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ negotiation auto
+!
+router ospf 101
+ router-id 124.4.113.26
+ auto-cost reference-bandwidth 40960
+ bfd all-interfaces
+!
+router bgp 17466
+ bgp router-id 136.232.138.70
+ bgp log-neighbor-changes
+ neighbor 124.4.113.25 remote-as 17466
+ neighbor 124.4.113.25 description <COLO-DC-BGP-PEER>
+ neighbor 124.4.113.25 update-source Loopback0
+ neighbor 125.23.240.157 remote-as 9498
+ neighbor 125.23.240.157 description ##eBGP To AirTel-Internet_PE##
+ neighbor 125.23.240.157 shutdown
+ neighbor 125.23.240.157 password 7 1302441C1B2C077D2A753A
+ neighbor 125.23.240.157 version 4
+ neighbor 125.23.240.157 timers 10 30
+ neighbor 136.232.138.69 remote-as 55836
+ neighbor 136.232.138.69 description ##eBGP To JIO-Internet_PE##
+ neighbor 136.232.138.69 password 7 135C47475B5E557B737078
+ !
+ address-family ipv4
+  network 182.94.238.0 mask 255.255.255.0
+  network 182.94.239.0 mask 255.255.255.0
+  network 203.145.174.104 mask 255.255.255.248
+  neighbor 124.4.113.25 activate
+  neighbor 124.4.113.25 next-hop-self
+  neighbor 124.4.113.25 soft-reconfiguration inbound
+  neighbor 125.23.240.157 activate
+  neighbor 125.23.240.157 soft-reconfiguration inbound
+  neighbor 125.23.240.157 route-map ISP_IN in
+  neighbor 125.23.240.157 route-map ISP_OUT out
+  neighbor 136.232.138.69 activate
+  neighbor 136.232.138.69 soft-reconfiguration inbound
+  neighbor 136.232.138.69 route-map ISP_IN in
+  neighbor 136.232.138.69 route-map ISP_OUT out
+ exit-address-family
+!
+ip forward-protocol nd
+ip tcp path-mtu-discovery
+ip telnet source-interface GigabitEthernet0
+no ip http server
+no ip http secure-server
+ip tftp source-interface GigabitEthernet0
+ip nat translation timeout 300
+ip nat translation tcp-timeout 300
+ip nat pool GENPACT 203.145.174.105 203.145.174.105 netmask 255.255.255.252
+ip nat pool AIRWATCH-COMMON-PAT-ACL 182.94.239.154 182.94.239.154 netmask 255.255.255.252
+ip nat pool COMMON-PAT-POOL 182.94.239.167 182.94.239.167 netmask 255.255.255.0
+ip nat pool TANIUM-PAT-POOL 182.94.239.141 182.94.239.141 netmask 255.255.255.0
+ip nat pool CYTIVA-PAT-POOL 182.94.239.215 182.94.239.215 netmask 255.255.255.128
+ip nat inside source static 182.94.235.71 182.94.239.6
+ip nat inside source static 182.94.235.72 182.94.239.7
+ip nat inside source static 182.94.235.73 182.94.239.8
+ip nat inside source static 182.94.235.74 182.94.239.9
+ip nat inside source static 182.94.235.75 182.94.239.10
+ip nat inside source static 182.94.235.76 182.94.239.11
+ip nat inside source static 182.94.235.77 182.94.239.12
+ip nat inside source static 182.94.235.78 182.94.239.13
+ip nat inside source static 182.94.235.79 182.94.239.14
+ip nat inside source static 182.94.235.80 182.94.239.15
+ip nat inside source static 182.94.235.81 182.94.239.16
+ip nat inside source static 182.94.235.17 182.94.239.17
+ip nat inside source static 182.94.235.18 182.94.239.18
+ip nat inside source static 182.94.235.19 182.94.239.19
+ip nat inside source static 182.94.235.20 182.94.239.20
+ip nat inside source static 182.94.235.22 182.94.239.22
+ip nat inside source static 182.94.235.58 182.94.239.23
+ip nat inside source static 182.94.235.24 182.94.239.24
+ip nat inside source static 182.94.235.28 182.94.239.28
+ip nat inside source static 182.94.235.29 182.94.239.29
+ip nat inside source static 182.94.235.31 182.94.239.31
+ip nat inside source static 182.94.235.32 182.94.239.32
+ip nat inside source static 182.94.235.33 182.94.239.33
+ip nat inside source static 182.94.235.40 182.94.239.40
+ip nat inside source static 182.94.235.41 182.94.239.41
+ip nat inside source static 182.94.235.42 182.94.239.42
+ip nat inside source static 182.94.235.44 182.94.239.44
+ip nat inside source static 182.94.235.54 182.94.239.54
+ip nat inside source static 182.94.235.55 182.94.239.55
+ip nat inside source static 182.94.235.61 182.94.239.57
+ip nat inside source static 182.94.235.59 182.94.239.59
+ip nat inside source static 182.94.235.60 182.94.239.60
+ip nat inside source static 182.94.235.68 182.94.239.68
+ip nat inside source static 182.94.235.102 182.94.239.102
+ip nat inside source static 182.94.235.103 182.94.239.103
+ip nat inside source static 182.94.235.104 182.94.239.104
+ip nat inside source static 182.94.235.13 182.94.239.136
+ip nat inside source static 182.94.235.14 182.94.239.137
+ip nat inside source static 182.94.235.108 182.94.239.138
+ip nat inside source static 10.74.241.34 182.94.239.150
+ip nat inside source static 10.74.241.66 182.94.239.151
+ip nat inside source static 10.74.241.35 182.94.239.152
+ip nat inside source static 10.74.241.36 182.94.239.153
+ip nat inside source static 10.74.241.37 182.94.239.156
+ip nat inside source static 10.74.240.108 182.94.239.158
+ip nat inside source static 10.74.241.38 182.94.239.159
+ip nat inside source static 10.74.240.148 182.94.239.160
+ip nat inside source static 10.74.240.156 182.94.239.161
+ip nat inside source static 10.74.240.196 182.94.239.166
+ip nat inside source static 10.74.240.212 182.94.239.169
+ip nat inside source static 182.94.235.107 182.94.239.170
+ip nat inside source static 10.77.0.4 182.94.239.171
+ip nat inside source static 10.70.7.212 182.94.239.172
+ip nat inside source static 10.74.240.188 182.94.239.173
+ip nat inside source static 10.74.240.228 182.94.239.176
+ip nat inside source static 10.74.240.220 182.94.239.177
+ip nat inside source static 10.101.49.4 182.94.239.179
+ip nat inside source static 10.74.240.244 182.94.239.180
+ip nat inside source static 10.74.240.252 182.94.239.181
+ip nat inside source static 10.76.83.138 182.94.239.182
+ip nat inside source static 10.101.49.12 182.94.239.183
+ip nat inside source static 10.101.49.20 182.94.239.184
+ip nat inside source static 182.94.235.11 182.94.239.185
+ip nat inside source static 10.101.49.60 182.94.239.187
+ip nat inside source static 10.101.49.44 182.94.239.188
+ip nat inside source static 10.101.49.49 182.94.239.189
+ip nat inside source static 10.101.49.100 182.94.239.207
+ip nat inside source static 10.101.49.116 182.94.239.210
+ip nat inside source static 10.103.85.20 182.94.239.211
+ip nat inside source static 10.103.85.28 182.94.239.212
+ip nat inside source static 1.1.1.2 203.145.174.109
+ip nat inside source list 11 pool GENPACT overload
+ip nat inside source list AIRWATCH-COMMON-PAT-ACL pool AIRWATCH-COMMON-PAT-ACL overload
+ip nat inside source list COMMON-PAT-ACL pool COMMON-PAT-POOL overload
+ip nat inside source list CYTIVA-PAT-ACL pool CYTIVA-PAT-POOL overload
+ip nat inside source list TANIUM_OPEN_INT_NAT pool TANIUM-PAT-POOL overload
+ip nat outside source static 182.94.239.21 182.94.235.6
+ip route 3.6.82.127 255.255.255.255 136.232.138.69 name DLP_OPEN_INT
+ip route 10.0.0.0 255.0.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 10.70.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 10.70.198.128 255.255.255.224 124.4.113.91 name Z-SCALAR_HYD_RITP_CUST_SUBNET_J&J
+ip route 10.70.214.0 255.255.254.0 124.4.113.91 name Z-SCALAR_KOL_SEZ_MITIE_SUBNET
+ip route 10.74.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 10.74.191.0 255.255.255.0 124.4.113.91 name Z-SCALAR_GGN_PLOT22_AMHERST_SUBNET_CM#CRQ000000010701
+ip route 10.74.212.0 255.255.255.128 124.4.113.91 name Z-SCALAR_NOI_STL_CUST_SUBNET
+ip route 10.74.240.108 255.255.255.255 124.4.113.91 name MMB_PRIMARY_IVPN
+ip route 10.74.240.148 255.255.255.255 124.4.113.91 name CIGNA-BCP_SECONDARY_IVPN
+ip route 10.74.240.188 255.255.255.255 124.4.113.91 name SANOMA_New_IVPN
+ip route 10.74.240.204 255.255.255.255 124.4.113.91 name SCI_IVPN
+ip route 10.74.240.220 255.255.255.255 124.4.113.91 name WALGREEN_IVPN
+ip route 10.74.240.228 255.255.255.255 124.4.113.91 name BUPA_AUS_IVPN
+ip route 10.74.240.244 255.255.255.255 124.4.113.91 name AHOLD_DELHAIZE_IVPN
+ip route 10.74.241.32 255.255.255.224 124.4.113.91 name ARYAKA_SDWAN_LEG
+ip route 10.74.241.34 255.255.255.255 124.4.113.91 name CIOX-ARYAKA-ANAP-BOX-01
+ip route 10.74.241.66 255.255.255.255 124.4.113.91 name CIOX-ARYAKA-ANAP-BOX-02
+ip route 10.75.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 10.76.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 10.76.83.138 255.255.255.255 124.4.113.91 name CIGNA_UK_SECONDARY_IVPN
+ip route 10.77.0.4 255.255.255.255 124.4.113.91 name RAGE_IVPN
+ip route 10.79.96.0 255.255.255.0 124.4.113.91 name Z-SCALAR_GGN_TKR_LSM_SUBNET_CM#CRQ000000009722
+ip route 10.101.49.4 255.255.255.255 124.4.113.91 name CHUBB_UK_IVPN
+ip route 10.101.49.12 255.255.255.255 124.4.113.91 name CIGNA_BCP_UK_SECONDARY_IVPN
+ip route 10.101.49.20 255.255.255.255 124.4.113.91 name YOKOGAWA-YEF_SECONDARY_IVPN
+ip route 10.101.49.44 255.255.255.255 124.4.113.91 name TULIP
+ip route 10.101.49.49 255.255.255.255 124.4.113.91 name Keybank_IVPN
+ip route 10.101.49.60 255.255.255.255 124.4.113.91 name PGS_IVPN
+ip route 10.101.49.100 255.255.255.255 124.4.113.91 name WBA-IVPN_#CRQ000000092301
+ip route 10.101.49.116 255.255.255.255 124.4.113.91 name TENNECO_IVPN
+ip route 10.103.85.20 255.255.255.255 124.4.113.91 name ADM_IVPN
+ip route 10.103.85.28 255.255.255.255 124.4.113.91 name ARYZTA-IVPN_#CRQ000000094847
+ip route 10.112.98.0 255.255.255.0 124.4.113.91 name HUMANA-BCP-VPN_#CRQ000000090101
+ip route 10.112.119.0 255.255.255.0 124.4.113.91 name AMGEN-BCP-VPN_#CRQ000000096435
+ip route 13.112.204.39 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 13.232.244.218 255.255.255.255 136.232.138.69 name TANIUM_OPEN_INT
+ip route 13.234.95.188 255.255.255.255 136.232.138.69 name TANIUM_OPEN_INT
+ip route 13.234.161.237 255.255.255.255 136.232.138.69 name TANIUM_OPEN_INT
+ip route 13.234.179.161 255.255.255.255 136.232.138.69 name DLP_OPEN_INT
+ip route 52.192.43.61 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 52.192.96.5 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 52.196.34.202 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 52.197.152.125 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 54.64.18.250 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 54.92.109.160 255.255.255.255 136.232.138.69 name Static_Routes_Airwatch
+ip route 58.2.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 58.2.0.0 255.255.255.224 124.4.113.91 name Z-SCALAR_BLR_SEZ_GENWORTH_SUBNET
+ip route 58.2.34.0 255.255.255.0 124.4.113.91 name Z-SCALAR_GGN_PHV_GENWORTH_SUBNET
+ip route 58.2.62.128 255.255.255.128 124.4.113.91 name Z-SCALAR_HYD_UPL_GENWORTH_SUBNET
+ip route 58.2.63.0 255.255.255.0 124.4.113.91 name Z-SCALAR_HYD_UPL_GENWORTH_SUBNET
+ip route 58.2.69.64 255.255.255.224 124.4.113.91 name Z-SCALAR_HYD_UPL_GENWORTH_SUBNET
+ip route 58.2.236.21 255.255.255.255 136.232.138.69 name GGNVPN
+ip route 58.2.236.190 255.255.255.255 136.232.138.69 name GGN_PROXY
+ip route 58.2.236.196 255.255.255.255 136.232.138.69 name GGN_PROXY
+ip route 58.2.236.197 255.255.255.255 136.232.138.69 name GGN_PROXY
+ip route 58.2.236.198 255.255.255.255 136.232.138.69 name GGN_PROXY
+ip route 58.2.238.190 255.255.255.255 136.232.138.69 name UPPAL_PROXY
+ip route 58.2.238.191 255.255.255.255 136.232.138.69 name UPPAL_PROXY
+ip route 58.2.238.192 255.255.255.255 136.232.138.69 name UPPAL_PROXY
+ip route 58.2.238.252 255.255.255.255 136.232.138.69 name UPPAL_PROXY
+ip route 104.211.96.159 255.255.255.255 136.232.138.69 name wamserverdb
+ip route 119.43.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 119.43.76.224 255.255.255.224 124.4.113.91 name Z-SCALAR_KOL_SEZ_GENWORTH_SUBNET
+ip route 119.43.99.0 255.255.255.224 124.4.113.91 name Z-SCALAR_GGN_SLK_GENWORTH_SUBNET
+ip route 119.43.120.0 255.255.255.0 124.4.113.91 name Z-SCALAR_SLK__SWISS_RE_CUST_SUBNET
+ip route 119.43.150.128 255.255.255.128 124.4.113.91 name Z-SCALAR_GGN_SLK_GENWORTH_SUBNET
+ip route 119.43.151.0 255.255.255.0 124.4.113.91 name Z-SCALAR_GGN_SLK_GENWORTH_SUBNET
+ip route 119.43.152.0 255.255.255.0 124.4.113.91 name Z-SCALAR_GGN_SLK_GENWORTH_SUBNET
+ip route 124.4.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 129.213.67.255 255.255.255.255 136.232.138.69 name OIC
+ip route 165.225.104.32 255.255.255.255 136.232.138.69 name Z-SCALAR_Tun_Dest
+ip route 165.225.106.32 255.255.255.255 136.232.138.69 name Z-SCALAR_Tun_Dest
+ip route 169.38.96.128 255.255.255.128 136.232.138.69 name Static_Routes_Airwatch
+ip route 172.16.0.0 255.240.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 182.94.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 182.94.235.0 255.255.255.128 124.4.113.91
+ip route 182.94.235.18 255.255.255.255 124.4.113.91 name UAG-Server-ip-SSZ
+ip route 182.94.235.55 255.255.255.255 124.4.113.91 name UAG-Server-ip-SSZ
+ip route 182.94.235.68 255.255.255.255 124.4.113.91 name UAG-Server-ip-SSZ
+ip route 182.94.235.107 255.255.255.255 124.4.113.91 name OKTA-Serverip-NewPDMZ
+ip route 182.94.238.0 255.255.255.0 124.4.113.91 name COLO-PUBLIC-IP-POOL
+ip route 182.94.239.0 255.255.255.0 Null0
+ip route 182.94.239.40 255.255.255.255 124.4.113.91 name Citrixip
+ip route 182.94.239.193 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY
+ip route 182.94.239.194 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY
+ip route 182.94.239.195 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY
+ip route 182.94.239.197 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY-TESTING
+ip route 182.94.239.198 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY-TESTING
+ip route 182.94.239.199 255.255.255.255 124.4.113.91 name ANYCONNECT-VPN-GATEWAY-TESTING
+ip route 182.95.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 182.95.73.0 255.255.255.0 124.4.113.91 name Z-SCALAR_HYD_DLF_GENWORTH_SUBNET
+ip route 182.95.246.138 255.255.255.255 124.4.113.25 name GENPACT-PHP-PUBLIC-IP
+ip route 182.95.247.136 255.255.255.255 124.4.113.25 name GENPACT-PHP5132-PUBLIC-IP-BIMODAL
+ip route 182.95.248.12 255.255.255.255 124.4.113.91
+ip route 185.46.212.90 255.255.255.255 Tunnel100 name PZEN_ZSCALER_PROXY_IP
+ip route 185.46.212.90 255.255.255.255 124.4.113.25 10 name PZEN_ZSCALER_PROXY_IP
+ip route 192.168.0.0 255.255.0.0 124.4.113.91 name Z-SCALAR_Genpact_Subnet
+ip route 203.145.174.104 255.255.255.248 Null0 name AirTel-Genpact-LAN
+ip route vrf Mgmt-intf 0.0.0.0 0.0.0.0 10.70.244.1
+ip tacacs source-interface GigabitEthernet0 
+!
+ip ssh time-out 30
+ip ssh authentication-retries 5
+ip ssh source-interface GigabitEthernet0
+ip ssh version 2
+!
+!
+ip prefix-list GENPACT-COLO-DC-Prefix seq 10 permit 182.94.238.0/24
+ip prefix-list GENPACT-COLO-DC-Prefix seq 15 permit 182.94.239.0/24
+!
+ip prefix-list ISP_IN seq 5 permit 0.0.0.0/0
+!
+ip prefix-list JIOBlock seq 10 permit 0.0.0.0/0 le 32
+!
+ip access-list standard NTP-PEER
+ permit 58.2.47.148
+ permit 58.2.40.169
+ip access-list standard SNMP-ACL
+ permit 182.95.95.247
+ permit 182.95.95.244
+ permit 124.4.41.5
+ remark <<< Logic Monitor >>>
+ permit 182.95.249.189
+ permit 182.95.249.190
+ip access-list standard SSH
+ permit 182.95.95.244
+ permit 182.95.95.245
+ permit 182.95.95.242
+ permit 182.95.95.243
+ permit 182.95.95.250
+ permit 58.2.36.106
+ permit 10.74.172.121
+ permit 182.94.71.55
+ permit 119.43.101.146
+ permit 58.2.58.250
+ permit 58.2.201.0 0.0.0.255
+ permit 182.95.0.0 0.0.255.255
+ permit 182.94.0.0 0.0.255.255
+ permit 124.4.0.0 0.0.255.255
+!
+ip access-list extended AIRWATCH-COMMON-PAT-ACL
+ permit ip host 182.94.152.82 169.38.96.128 0.0.0.127
+ permit ip host 182.94.152.82 host 54.64.18.250
+ permit ip host 182.94.152.82 host 52.192.96.5
+ permit ip host 182.94.152.82 host 54.92.109.160
+ permit ip host 182.94.152.82 host 52.192.43.61
+ permit ip host 182.94.152.82 host 52.196.34.202
+ permit ip host 182.94.152.82 host 52.197.152.125
+ permit ip host 182.94.152.82 host 13.112.204.39
+ permit ip host 182.94.152.83 169.38.96.128 0.0.0.127
+ permit ip host 182.94.152.83 host 54.64.18.250
+ permit ip host 182.94.152.83 host 52.192.96.5
+ permit ip host 182.94.152.83 host 54.92.109.160
+ permit ip host 182.94.152.83 host 52.192.43.61
+ permit ip host 182.94.152.83 host 52.196.34.202
+ permit ip host 182.94.152.83 host 52.197.152.125
+ permit ip host 182.94.152.83 host 13.112.204.39
+ permit ip host 124.4.160.161 169.38.96.128 0.0.0.127
+ permit ip host 182.95.248.12 any
+ permit ip host 182.94.152.94 any
+ permit ip host 182.94.152.95 any
+ permit ip host 182.94.53.124 any
+ permit ip host 182.95.248.186 any
+ permit ip host 182.95.248.187 any
+ permit ip host 182.95.248.190 any
+ permit ip host 182.95.249.60 any
+ permit ip host 182.94.235.30 any
+ permit ip host 124.4.41.55 host 18.214.4.236
+ permit ip host 124.4.41.55 host 18.232.15.12
+ permit ip host 124.4.41.55 host 34.199.231.201
+ permit ip host 124.4.41.55 host 34.202.76.156
+ permit ip host 124.4.41.55 host 34.202.153.69
+ permit ip host 124.4.41.55 host 52.2.216.164
+ permit ip host 124.4.41.55 host 52.87.56.242
+ permit ip host 124.4.41.55 host 34.196.36.228
+ permit ip host 124.4.41.55 host 34.226.226.14
+ permit ip host 124.4.41.55 host 34.203.55.77
+ permit ip host 124.4.41.55 host 34.204.55.116
+ permit ip host 124.4.41.55 host 34.224.108.85
+ permit ip host 124.4.41.55 host 34.227.137.32
+ permit ip host 124.4.41.55 host 34.196.203.160
+ permit ip host 124.4.41.56 host 18.214.4.236
+ permit ip host 124.4.41.56 host 18.232.15.12
+ permit ip host 124.4.41.56 host 34.199.231.201
+ permit ip host 124.4.41.56 host 34.202.76.156
+ permit ip host 124.4.41.56 host 34.202.153.69
+ permit ip host 124.4.41.56 host 52.2.216.164
+ permit ip host 124.4.41.56 host 52.87.56.242
+ permit ip host 124.4.41.56 host 34.196.36.228
+ permit ip host 124.4.41.56 host 34.226.226.14
+ permit ip host 124.4.41.56 host 34.203.55.77
+ permit ip host 124.4.41.56 host 34.204.55.116
+ permit ip host 124.4.41.56 host 34.224.108.85
+ permit ip host 124.4.41.56 host 34.227.137.32
+ permit ip host 124.4.41.56 host 34.196.203.160
+ permit ip host 124.4.41.55 host 18.211.250.55
+ permit ip host 124.4.41.55 host 18.215.136.66
+ permit ip host 124.4.41.56 host 18.211.250.55
+ permit ip host 124.4.41.56 host 18.215.136.66
+ permit ip host 182.95.248.20 any
+ permit ip host 182.95.249.22 any
+ permit ip host 124.4.17.10 any
+ permit ip host 182.95.248.72 any
+ permit ip host 182.95.248.73 any
+ permit ip host 124.4.41.55 host 35.186.161.12
+ permit ip host 124.4.41.56 host 35.186.161.12
+ permit ip host 124.4.17.18 host 8.8.4.4
+ permit ip host 124.4.17.18 host 8.8.8.8
+ permit ip host 124.4.17.19 host 8.8.4.4
+ permit ip host 124.4.17.19 host 8.8.8.8
+ permit ip host 124.4.17.18 any
+ permit ip host 124.4.17.19 any
+ permit ip host 182.95.249.17 any
+ permit ip 10.112.116.192 0.0.0.31 any
+ip access-list extended COMMON-PAT-ACL
+ permit ip 10.74.191.0 0.0.0.31 host 169.38.90.99
+ permit ip 10.74.191.64 0.0.0.63 host 169.38.90.99
+ permit ip host 182.95.248.76 host 170.64.0.148
+ permit ip host 182.95.249.122 host 35.186.161.12
+ permit ip host 124.4.41.20 host 104.211.96.159
+ permit ip host 182.95.249.13 host 195.28.243.28
+ permit ip host 182.95.249.13 host 195.28.241.230
+ permit ip host 182.95.248.20 host 195.28.243.28
+ permit ip host 182.95.248.20 host 195.28.241.230
+ permit ip host 182.94.71.59 host 129.213.46.69
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.42
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.43
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.44
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.45
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.46
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.47
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.48
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.49
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.222
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.239
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.221
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.223
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.224
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.80.79
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.94.52
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.36
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.81.37
+ permit ip 10.112.98.0 0.0.0.255 host 205.145.95.36
+ permit ip 10.112.98.0 0.0.0.255 host 104.18.14.170
+ permit ip 10.112.98.0 0.0.0.255 host 104.18.15.170
+ permit ip 182.95.249.0 0.0.0.255 any
+ permit ip 182.95.248.0 0.0.0.255 any
+ permit ip 182.94.71.0 0.0.0.255 any
+ permit ip host 182.94.71.55 host 129.213.67.255
+ permit ip host 182.94.71.59 host 129.213.67.255
+ permit ip 10.112.0.0 0.0.255.255 any
+ deny   ip any any
+ip access-list extended CYTIVA-PAT-ACL
+ permit ip 10.112.252.0 0.0.1.255 any
+ deny   ip any any
+ip access-list extended JIO-ISP-IN
+ deny   ip object-group MALICIOUS_IP_BLOCK any
+ deny   ip any object-group MALICIOUS_IP_BLOCK
+ permit tcp any eq 443 host 182.94.239.215
+ permit udp host 203.0.220.234 any
+ permit ip any host 206.195.196.8
+ permit ip host 54.76.17.226 any
+ permit ip any any
+ip access-list extended OTRS_ZSCALER
+ permit tcp 182.95.248.72 0.0.0.7 13.107.128.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 13.107.18.10 0.0.0.1 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 13.107.6.152 0.0.0.1 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 host 131.253.33.215 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 132.245.0.0 0.0.255.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 150.171.32.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 191.234.140.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 host 204.79.197.215 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 23.103.160.0 0.0.15.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 40.104.0.0 0.1.255.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 40.96.0.0 0.7.255.255 eq 995
+ permit tcp 182.95.248.72 0.0.0.7 52.96.0.0 0.3.255.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 13.107.128.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 13.107.18.10 0.0.0.1 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 13.107.6.152 0.0.0.1 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 host 131.253.33.215 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 132.245.0.0 0.0.255.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 150.171.32.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 191.234.140.0 0.0.3.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 host 204.79.197.215 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 23.103.160.0 0.0.15.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 40.104.0.0 0.1.255.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 40.96.0.0 0.7.255.255 eq 995
+ permit tcp 182.95.248.80 0.0.0.3 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.152.94 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.94 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.152.94 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.152.94 host 131.253.33.215 eq 995
+ permit tcp host 182.94.152.94 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.152.94 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.94 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.94 host 204.79.197.215 eq 995
+ permit tcp host 182.94.152.94 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.152.94 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.152.94 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.152.94 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.152.95 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.95 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.152.95 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.152.95 host 131.253.33.215 eq 995
+ permit tcp host 182.94.152.95 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.152.95 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.95 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.95 host 204.79.197.215 eq 995
+ permit tcp host 182.94.152.95 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.152.95 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.152.95 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.152.95 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.152.67 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.67 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.152.67 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.152.67 host 131.253.33.215 eq 995
+ permit tcp host 182.94.152.67 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.152.67 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.67 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.152.67 host 204.79.197.215 eq 995
+ permit tcp host 182.94.152.67 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.152.67 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.152.67 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.152.67 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.53.124 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.53.124 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.53.124 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.53.124 host 131.253.33.215 eq 995
+ permit tcp host 182.94.53.124 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.53.124 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.53.124 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.53.124 host 204.79.197.215 eq 995
+ permit tcp host 182.94.53.124 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.53.124 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.53.124 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.53.124 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.235.23 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.23 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.235.23 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.235.23 host 131.253.33.215 eq 995
+ permit tcp host 182.94.235.23 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.235.23 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.23 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.23 host 204.79.197.215 eq 995
+ permit tcp host 182.94.235.23 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.235.23 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.235.23 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.235.23 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.235.26 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.26 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.235.26 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.235.26 host 131.253.33.215 eq 995
+ permit tcp host 182.94.235.26 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.235.26 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.26 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.26 host 204.79.197.215 eq 995
+ permit tcp host 182.94.235.26 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.235.26 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.235.26 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.235.26 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.235.57 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.57 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.235.57 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.235.57 host 131.253.33.215 eq 995
+ permit tcp host 182.94.235.57 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.235.57 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.57 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.57 host 204.79.197.215 eq 995
+ permit tcp host 182.94.235.57 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.235.57 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.235.57 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.235.57 52.96.0.0 0.3.255.255 eq 995
+ permit tcp host 182.94.235.101 13.107.128.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.101 13.107.18.10 0.0.0.1 eq 995
+ permit tcp host 182.94.235.101 13.107.6.152 0.0.0.1 eq 995
+ permit tcp host 182.94.235.101 host 131.253.33.215 eq 995
+ permit tcp host 182.94.235.101 132.245.0.0 0.0.255.255 eq 995
+ permit tcp host 182.94.235.101 150.171.32.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.101 191.234.140.0 0.0.3.255 eq 995
+ permit tcp host 182.94.235.101 host 204.79.197.215 eq 995
+ permit tcp host 182.94.235.101 23.103.160.0 0.0.15.255 eq 995
+ permit tcp host 182.94.235.101 40.104.0.0 0.1.255.255 eq 995
+ permit tcp host 182.94.235.101 40.96.0.0 0.7.255.255 eq 995
+ permit tcp host 182.94.235.101 52.96.0.0 0.3.255.255 eq 995
+ip access-list extended TANIUM_OPEN_INT_NAT
+ permit ip any host 13.234.161.237
+ permit ip any host 13.234.95.188
+ permit ip any host 13.232.244.218
+ permit ip any host 13.234.179.161
+ permit ip any host 3.6.82.127
+ip access-list extended VPN-TEST
+ permit tcp any host 182.94.239.194 log
+ permit tcp host 182.94.239.194 any log
+ permit udp any host 182.94.239.194 log
+ permit udp host 182.94.239.194 any log
+ permit ip any any
+ip access-list extended ZSCALAR_AWS_PBR
+ deny   ip host 182.94.239.194 any
+ deny   ip host 182.94.235.71 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.71 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.72 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.72 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.73 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.73 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.74 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.74 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.75 165.225.106.0 0.0.1.255
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.193.65
+ deny   ip host 182.94.235.75 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.76 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.76 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.77 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.77 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.78 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.78 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.79 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.79 165.225.104.0 0.0.0.255
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.195.65
+ deny   ip host 182.94.235.80 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.80 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.81 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.81 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.13 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.13 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.14 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.14 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.108 165.225.106.0 0.0.1.255
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.197.65
+ deny   ip host 182.94.235.108 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.17 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.17 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.54 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.54 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.28 165.225.106.0 0.0.1.255
+ deny   ip host 182.94.235.28 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.239.40 any
+ deny   ip host 182.94.235.40 any
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.193.103
+ deny   ip host 182.94.235.11 165.225.104.0 0.0.0.255
+ deny   ip host 182.94.235.11 165.225.106.0 0.0.1.255
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.195.103
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.197.103
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.193.85
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.195.85
+ permit ip 10.74.212.0 0.0.0.127 host 104.129.197.85
+ permit ip 10.74.212.0 0.0.0.127 host 185.46.212.88
+ permit ip 10.74.212.0 0.0.0.127 165.225.106.0 0.0.1.255
+ permit ip 10.74.212.0 0.0.0.127 165.225.104.0 0.0.0.255
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.193.65
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.195.65
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.197.65
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.193.103
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.195.103
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.197.103
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.193.85
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.195.85
+ permit ip 119.43.120.0 0.0.0.255 host 104.129.197.85
+ permit ip 119.43.120.0 0.0.0.255 host 185.46.212.88
+ permit ip 119.43.120.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 119.43.120.0 0.0.0.255 165.225.104.0 0.0.0.255
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.193.65
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.195.65
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.197.65
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.193.103
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.195.103
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.197.103
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.193.85
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.195.85
+ permit ip 10.70.198.128 0.0.0.31 host 104.129.197.85
+ permit ip 10.70.198.128 0.0.0.31 host 185.46.212.88
+ permit ip 10.70.198.128 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 10.70.198.128 0.0.0.31 165.225.104.0 0.0.0.255
+ remark "Kolkata Genworth Subnets"
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.193.65
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.195.65
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.197.65
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.193.103
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.195.103
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.197.103
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.193.85
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.195.85
+ permit ip 119.43.76.224 0.0.0.31 host 104.129.197.85
+ permit ip 119.43.76.224 0.0.0.31 host 185.46.212.88
+ permit ip 119.43.76.224 0.0.0.31 host 185.46.212.89
+ permit ip 119.43.76.224 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 119.43.76.224 0.0.0.31 165.225.104.0 0.0.0.255
+ remark "BLR SEZ Genworth Subnets"
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.193.65
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.195.65
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.197.65
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.193.103
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.195.103
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.197.103
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.193.85
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.195.85
+ permit ip 58.2.0.0 0.0.0.31 host 104.129.197.85
+ permit ip 58.2.0.0 0.0.0.31 host 185.46.212.88
+ permit ip 58.2.0.0 0.0.0.31 host 185.46.212.89
+ permit ip 58.2.0.0 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 58.2.0.0 0.0.0.31 165.225.104.0 0.0.0.255
+ remark "HYD UPL Genworth Subnets"
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.193.65
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.195.65
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.197.65
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.193.103
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.195.103
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.197.103
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.193.85
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.195.85
+ permit ip 58.2.62.128 0.0.0.127 host 104.129.197.85
+ permit ip 58.2.62.128 0.0.0.127 host 185.46.212.88
+ permit ip 58.2.62.128 0.0.0.127 host 185.46.212.89
+ permit ip 58.2.62.128 0.0.0.127 165.225.106.0 0.0.1.255
+ permit ip 58.2.62.128 0.0.0.127 165.225.104.0 0.0.0.255
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.193.65
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.195.65
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.197.65
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.193.103
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.195.103
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.197.103
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.193.85
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.195.85
+ permit ip 58.2.63.0 0.0.0.255 host 104.129.197.85
+ permit ip 58.2.63.0 0.0.0.255 host 185.46.212.88
+ permit ip 58.2.63.0 0.0.0.255 host 185.46.212.89
+ permit ip 58.2.63.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 58.2.63.0 0.0.0.255 165.225.104.0 0.0.0.255
+ remark "HYD DLF Genworth Subnets"
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.193.65
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.195.65
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.197.65
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.193.103
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.195.103
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.197.103
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.193.85
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.195.85
+ permit ip 182.95.73.0 0.0.0.255 host 104.129.197.85
+ permit ip 182.95.73.0 0.0.0.255 host 185.46.212.88
+ permit ip 182.95.73.0 0.0.0.255 host 185.46.212.89
+ permit ip 182.95.73.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 182.95.73.0 0.0.0.255 165.225.104.0 0.0.0.255
+ remark "GGN SLK Genworth Subnets"
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.193.65
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.195.65
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.197.65
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.193.103
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.195.103
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.197.103
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.193.85
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.195.85
+ permit ip 119.43.151.0 0.0.0.255 host 104.129.197.85
+ permit ip 119.43.151.0 0.0.0.255 host 185.46.212.88
+ permit ip 119.43.151.0 0.0.0.255 host 185.46.212.89
+ permit ip 119.43.151.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 119.43.151.0 0.0.0.255 165.225.104.0 0.0.0.255
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.193.65
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.195.65
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.197.65
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.193.103
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.195.103
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.197.103
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.193.85
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.195.85
+ permit ip 119.43.152.0 0.0.0.255 host 104.129.197.85
+ permit ip 119.43.152.0 0.0.0.255 host 185.46.212.88
+ permit ip 119.43.152.0 0.0.0.255 host 185.46.212.89
+ permit ip 119.43.152.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 119.43.152.0 0.0.0.255 165.225.104.0 0.0.0.255
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.193.65
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.195.65
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.197.65
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.193.103
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.195.103
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.197.103
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.193.85
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.195.85
+ permit ip 119.43.99.0 0.0.0.31 host 104.129.197.85
+ permit ip 119.43.99.0 0.0.0.31 host 185.46.212.88
+ permit ip 119.43.99.0 0.0.0.31 host 185.46.212.89
+ permit ip 119.43.99.0 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 119.43.99.0 0.0.0.31 165.225.104.0 0.0.0.255
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.193.65
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.195.65
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.197.65
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.193.103
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.195.103
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.197.103
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.193.85
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.195.85
+ permit ip 119.43.150.128 0.0.0.127 host 104.129.197.85
+ permit ip 119.43.150.128 0.0.0.127 host 185.46.212.88
+ permit ip 119.43.150.128 0.0.0.127 host 185.46.212.89
+ permit ip 119.43.150.128 0.0.0.127 165.225.106.0 0.0.1.255
+ permit ip 119.43.150.128 0.0.0.127 165.225.104.0 0.0.0.255
+ remark "GGN Phase V Genworth Subnets"
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.193.65
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.195.65
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.197.65
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.193.103
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.195.103
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.197.103
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.193.85
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.195.85
+ permit ip 58.2.34.0 0.0.0.255 host 104.129.197.85
+ permit ip 58.2.34.0 0.0.0.255 host 185.46.212.88
+ permit ip 58.2.34.0 0.0.0.255 host 185.46.212.89
+ permit ip 58.2.34.0 0.0.0.255 165.225.106.0 0.0.1.255
+ permit ip 58.2.34.0 0.0.0.255 165.225.104.0 0.0.0.255
+ remark "Kolkata MITIE Subnets"
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.193.65
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.195.65
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.197.65
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.193.103
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.195.103
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.197.103
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.193.85
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.195.85
+ permit ip 10.70.214.0 0.0.1.255 host 104.129.197.85
+ permit ip 10.70.214.0 0.0.1.255 host 185.46.212.88
+ permit ip 10.70.214.0 0.0.1.255 host 185.46.212.89
+ permit ip 10.70.214.0 0.0.1.255 165.225.106.0 0.0.1.255
+ permit ip 10.70.214.0 0.0.1.255 165.225.104.0 0.0.0.255
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 58.2.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 58.2.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 58.2.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 58.2.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 58.2.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 119.43.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 119.43.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 119.43.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 119.43.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 119.43.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 124.4.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 124.4.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 124.4.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 124.4.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 124.4.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 182.94.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 182.94.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 182.94.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 182.94.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 182.94.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 182.95.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 182.95.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 182.95.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 182.95.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 182.95.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 10.70.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 10.70.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 10.70.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 10.70.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 10.70.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 10.74.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 10.74.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 10.74.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 10.74.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 10.74.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 10.75.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 10.75.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 10.75.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 10.75.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 10.75.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 10.76.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 10.76.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 10.76.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 10.76.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 10.76.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.193.65
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.195.65
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.197.65
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.193.103
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.195.103
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.197.103
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.193.85
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.195.85
+ permit ip 10.0.0.0 0.255.255.255 host 104.129.197.85
+ permit ip 10.0.0.0 0.255.255.255 host 185.46.212.88
+ permit ip 10.0.0.0 0.255.255.255 host 185.46.212.89
+ permit ip 10.0.0.0 0.255.255.255 165.225.106.0 0.0.1.255
+ permit ip 10.0.0.0 0.255.255.255 165.225.104.0 0.0.0.255
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.193.65
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.195.65
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.197.65
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.193.103
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.195.103
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.197.103
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.193.85
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.195.85
+ permit ip 172.16.0.0 0.15.255.255 host 104.129.197.85
+ permit ip 172.16.0.0 0.15.255.255 host 185.46.212.88
+ permit ip 172.16.0.0 0.15.255.255 host 185.46.212.89
+ permit ip 172.16.0.0 0.15.255.255 165.225.106.0 0.0.1.255
+ permit ip 172.16.0.0 0.15.255.255 165.225.104.0 0.0.0.255
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 192.168.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 192.168.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 192.168.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 192.168.0.0 0.0.255.255 165.225.106.0 0.0.1.255
+ permit ip 192.168.0.0 0.0.255.255 165.225.104.0 0.0.0.255
+ remark "Tikri LSM Subnets"
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.193.65
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.195.65
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.197.65
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.193.103
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.195.103
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.197.103
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.193.85
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.195.85
+ permit ip 10.79.96.0 0.0.0.127 host 104.129.197.85
+ permit ip 10.79.96.0 0.0.0.127 host 185.46.212.88
+ permit ip 10.79.96.0 0.0.0.127 host 185.46.212.89
+ permit ip 10.79.96.0 0.0.0.127 165.225.106.0 0.0.1.255
+ permit ip 10.79.96.0 0.0.0.127 165.225.104.0 0.0.0.255
+ remark "Tikri FACTO_FRANCE Subnets"
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.193.65
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.195.65
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.197.65
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.193.103
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.195.103
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.197.103
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.193.85
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.195.85
+ permit ip 10.79.96.128 0.0.0.31 host 104.129.197.85
+ permit ip 10.79.96.128 0.0.0.31 host 185.46.212.88
+ permit ip 10.79.96.128 0.0.0.31 host 185.46.212.89
+ permit ip 10.79.96.128 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 10.79.96.128 0.0.0.31 165.225.104.0 0.0.0.255
+ remark "GGN PLOT-22 AMHERST Subnets"
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.193.65
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.195.65
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.197.65
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.193.103
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.195.103
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.197.103
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.193.85
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.195.85
+ permit ip 10.74.191.0 0.0.0.31 host 104.129.197.85
+ permit ip 10.74.191.0 0.0.0.31 host 185.46.212.88
+ permit ip 10.74.191.0 0.0.0.31 host 185.46.212.89
+ permit ip 10.74.191.0 0.0.0.31 165.225.106.0 0.0.1.255
+ permit ip 10.74.191.0 0.0.0.31 165.225.104.0 0.0.0.255
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.193.65
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.195.65
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.197.65
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.193.103
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.195.103
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.197.103
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.193.85
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.195.85
+ permit ip 10.77.158.0 0.0.1.255 host 104.129.197.85
+ permit ip 10.77.158.0 0.0.1.255 host 185.46.212.88
+ permit ip 10.77.158.0 0.0.1.255 host 185.46.212.89
+ permit ip 10.77.158.0 0.0.1.255 165.225.106.0 0.0.1.255
+ permit ip 10.77.158.0 0.0.1.255 165.225.104.0 0.0.0.255
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.193.65
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.195.65
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.197.65
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.193.103
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.195.103
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.197.103
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.193.85
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.195.85
+ permit ip 10.77.0.0 0.0.255.255 host 104.129.197.85
+ permit ip 10.77.0.0 0.0.255.255 host 185.46.212.88
+ permit ip 10.77.0.0 0.0.255.255 host 185.46.212.89
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.193.65
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.195.65
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.197.65
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.193.103
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.195.103
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.197.103
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.193.85
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.195.85
+ permit ip 10.104.4.0 0.0.3.255 host 104.129.197.85
+ permit ip 10.104.4.0 0.0.3.255 host 185.46.212.88
+ permit ip 10.104.4.0 0.0.3.255 host 185.46.212.89
+ permit ip 10.104.4.0 0.0.3.255 165.225.106.0 0.0.1.255
+ permit ip 10.104.4.0 0.0.3.255 165.225.104.0 0.0.0.255
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.193.65
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.195.65
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.197.65
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.193.103
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.195.103
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.197.103
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.193.85
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.195.85
+ permit ip 10.104.8.0 0.0.3.255 host 104.129.197.85
+ permit ip 10.104.8.0 0.0.3.255 host 185.46.212.88
+ permit ip 10.104.8.0 0.0.3.255 host 185.46.212.89
+ permit ip 10.104.8.0 0.0.3.255 165.225.106.0 0.0.1.255
+ permit ip 10.104.8.0 0.0.3.255 165.225.104.0 0.0.0.255
+ permit ip host 124.4.41.9 host 165.225.73.68
+ permit ip host 124.4.41.9 host 185.46.213.65
+ permit ip host 124.4.41.9 host 185.46.215.67
+ permit ip host 124.4.41.9 host 104.129.193.67
+ permit ip host 124.4.41.9 host 104.129.195.67
+ permit ip host 124.4.41.9 host 104.129.197.67
+ permit ip host 124.4.41.9 host 104.129.193.107
+ permit ip host 124.4.41.9 host 104.129.195.107
+ permit ip host 124.4.41.9 host 104.129.197.107
+ permit ip host 124.4.41.8 host 165.225.73.68
+ permit ip host 124.4.41.8 host 185.46.213.65
+ permit ip host 124.4.41.8 host 185.46.215.67
+ permit ip host 124.4.41.8 host 104.129.193.67
+ permit ip host 124.4.41.8 host 104.129.195.67
+ permit ip host 124.4.41.8 host 104.129.197.67
+ permit ip host 124.4.41.8 host 104.129.193.107
+ permit ip host 124.4.41.8 host 104.129.195.107
+ permit ip host 124.4.41.8 host 104.129.197.107
+ip access-list extended test
+ deny   ip object-group MALICIOUS_IP_BLOCK any
+ deny   ip any object-group MALICIOUS_IP_BLOCK
+ permit udp host 203.0.220.234 any
+ permit ip any host 206.195.196.8
+ permit ip host 54.76.17.226 any
+ permit ip any any
+ip sla 1
+ http raw http://172.19.135.34:9480
+ http-raw-request
+  GET http://gateway.zscaler.net/vpntest HTTP/1.0\r\n
+  User-Agent: Cisco IP SLA\r\n
+  End\r\n
+  \r\n
+  exit
+ threshold 300
+ timeout 5000
+ip sla schedule 1 life forever start-time now
+ip sla 101
+ icmp-echo 136.232.138.69 source-ip 136.232.138.70
+ frequency 5
+ip sla schedule 101 life forever start-time now
+ip sla reaction-configuration 1 react rtt threshold-value 300 1 threshold-type consecutive 3
+logging history size 100
+logging history debugging
+logging alarm informational
+logging trap debugging
+logging source-interface GigabitEthernet0 vrf Mgmt-intf
+logging host 182.94.152.5 vrf Mgmt-intf
+logging host 182.94.152.5
+access-list 11 deny   182.94.239.134
+access-list 11 deny   182.94.239.187
+access-list 11 deny   182.94.239.199
+access-list 11 deny   182.94.239.198
+access-list 11 deny   182.94.239.197
+access-list 11 deny   182.94.239.192 0.0.0.3
+access-list 11 permit 182.94.239.128 0.0.0.127
+access-list 84 permit 124.4.41.5
+access-list 84 permit 182.94.81.46
+access-list 84 remark <<< Logic Monitor >>>
+access-list 84 permit 182.95.249.189
+access-list 84 permit 182.95.249.190
+access-list 84 permit 10.198.60.27
+access-list 84 permit 58.2.174.121
+access-list 84 permit 10.74.168.96 0.0.0.31
+access-list 84 permit 10.74.172.96 0.0.0.31
+access-list 85 permit 124.4.41.5
+access-list 85 permit 182.94.81.46
+access-list 85 remark <<< Logic Monitor >>>
+access-list 85 permit 182.95.249.189
+access-list 85 permit 182.95.249.190
+access-list 85 permit 10.198.60.27
+access-list 85 permit 58.2.174.121
+access-list 85 permit 10.74.168.96 0.0.0.31
+access-list 85 permit 10.74.172.96 0.0.0.31
+access-list 88 permit 182.94.152.120
+access-list 88 permit 58.2.174.140
+access-list 88 permit 10.74.90.43
+access-list 88 permit 10.74.168.105
+!
+!
+route-map INT_ZSCALAR_POLICY permit 10 
+ match ip address ZSCALAR_AWS_PBR
+ set ip next-hop 172.20.117.138 172.20.117.142 124.4.113.93
+!
+route-map INT_ZSCALAR_POLICY permit 30 
+ match ip address OTRS_ZSCALER
+ set ip next-hop 172.20.117.138 172.20.117.142 124.4.113.93
+!
+route-map INT_ZSCALAR_POLICY deny 40 
+!
+route-map ISP_IN permit 10 
+ match ip address prefix-list ISP_IN
+ set local-preference 500
+!
+route-map JIORoutesBlock deny 10 
+ match ip address prefix-list JIOBlock
+!
+route-map ISP_OUT permit 10 
+ match ip address prefix-list GENPACT-COLO-DC-Prefix
+!
+route-map ISP_OUT deny 20 
+!
+snmp-server group admin v3 auth 
+snmp-server community G3NP@cT!NT2 RO SNMP-ACL
+snmp-server community $oLNm$@P@55w0rd@Genpact RO 84
+snmp-server community $oLNCM@P@$$w0rd@Genpact RW 85
+snmp-server community ATR1Um$cmDB RO 88
+snmp-server community S0L@GenpactC$ RO 84
+snmp-server community S0L@GenpactC! RW 85
+snmp-server trap-source GigabitEthernet0
+snmp-server location India-CON 
+snmp-server contact Genpact-MNS Team
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps ospf cisco-specific state-change nssa-trans-change
+snmp-server enable traps ospf cisco-specific state-change shamlink interface
+snmp-server enable traps ospf cisco-specific state-change shamlink neighbor
+snmp-server enable traps ospf cisco-specific errors
+snmp-server enable traps ospf cisco-specific retransmit
+snmp-server enable traps ospf cisco-specific lsa
+snmp-server enable traps license
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps event-manager
+snmp-server enable traps hsrp
+snmp-server enable traps cpu threshold
+snmp-server enable traps ipsla
+snmp-server enable traps aaa_server
+snmp-server enable traps bgp
+snmp-server enable traps bgp cbgp2
+snmp-server enable traps voice
+snmp-server host 10.74.172.121 S0L@GenpactC! 
+snmp-server host 182.94.81.46 S0L@GenpactC! 
+snmp-server host 10.74.172.121 S0L@GenpactC$ 
+snmp-server host 182.94.81.46 S0L@GenpactC$ 
+snmp-server file-transfer access-group SNMP-ACL protocol tftp
+snmp ifmib ifalias long
+tacacs server 1
+ address ipv4 182.94.47.18
+ key 7 01342601551B070C351D1C5A
+tacacs server 2
+ address ipv4 58.2.58.181
+ key 7 01342601551B070C351D1C5A
+tacacs server 3
+ address ipv4 58.2.47.116
+ key 7 01342601551B070C351D1C5A
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+privilege exec level 2 telnet
+privilege exec level 2 traceroute
+privilege exec level 2 ping
+privilege exec level 2 show cdp neighbors detail
+privilege exec level 2 show cdp neighbors
+privilege exec level 2 show cdp
+privilege exec level 2 show ip accounting output-packets
+privilege exec level 2 show ip accounting
+privilege exec level 2 show ip route
+privilege exec level 2 show ip interface brief
+privilege exec level 2 show ip interface
+privilege exec level 2 show ip
+privilege exec level 2 show access-lists
+privilege exec level 2 show logging
+privilege exec level 3 show startup-config
+privilege exec level 2 show interfaces
+privilege exec level 2 show
+privilege exec level 3 clear line
+privilege exec level 3 clear interface
+privilege exec level 3 clear counters
+privilege exec level 3 clear
+banner login ^CC
+                      Unauthorised Access Prohibited
+                        All activity is monitored
+*****************************************************************************
+* You must have explicit, authorized permission to access or configure this *
+* device.                                                                   *
+* Unauthorized attempts and actions to access or use this system may result *
+* in civil and/or criminal penalties.                                       *
+* All activities performed on this device are logged and monitored.         *
+*****************************************************************************
+^C
+banner motd ^C
+                      Unauthorised Access Prohibited
+                        All activity is monitored
+*****************************************************************************
+* You must have explicit, authorized permission to access or configure this *
+* device.                                                                   *
+* Unauthorized attempts and actions to access or use this system may result *
+* in civil and/or criminal penalties.                                       *
+* All activities performed on this device are logged and monitored.         *
+*****************************************************************************
+^C
+!
+line con 0
+ exec-timeout 15 0
+ transport preferred none
+ transport output none
+ stopbits 1
+line aux 0
+ no exec
+ stopbits 1
+line vty 0 4
+ access-class SSH in vrf-also
+ exec-timeout 15 0
+ transport input ssh
+ transport output telnet ssh
+line vty 5 15
+ exec-timeout 15 0
+ transport input ssh
+ transport output telnet ssh
+!
+ntp access-group peer NTP-PEER
+ntp server vrf Mgmt-intf 58.2.47.19
+ntp server vrf Mgmt-intf 58.2.47.148 prefer
+ntp server 58.2.47.148
+ntp server 182.94.176.197
+!
+!
+!
+!
+!
+!
+end

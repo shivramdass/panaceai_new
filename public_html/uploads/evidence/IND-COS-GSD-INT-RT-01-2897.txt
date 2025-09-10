@@ -1,0 +1,1048 @@
+!
+! Last configuration change at 07:06:17 IST Wed Dec 30 2020 by Admin@NM$
+!
+version 16.9
+no service pad
+service tcp-keepalives-in
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+!
+hostname IND-COS-GSD-INT-RT-01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vrf definition Mgmt-intf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+logging count
+logging buffered 16386 notifications
+logging rate-limit console 15 except warnings
+logging console notifications
+logging monitor notifications
+enable secret level 2 5 $1$fwnF$soLL93Ih0Y2ZPlFDxFSiQ0
+enable secret level 3 5 $1$8XPe$4mo6wkG.lfhM5ZwZTtM980
+enable secret 5 $1$eD2P$amR/GtNn65RHgA5HWq3of.
+!
+aaa new-model
+!
+!
+aaa authentication fail-message ^CC
+All Failed Logins Are Being Monitored
+^C
+aaa authentication login default group tacacs+ local
+aaa authentication login console local
+aaa authentication enable default group tacacs+ enable
+aaa authorization exec default group tacacs+ none 
+aaa authorization commands 1 default group tacacs+ 
+aaa authorization commands 5 default group tacacs+ 
+aaa authorization commands 7 default group tacacs+ 
+aaa authorization commands 15 default group tacacs+ 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting commands 15 default start-stop group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone IST 5 30
+no ip source-route
+!
+!
+!
+!
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name Genpact.com
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+! 
+! 
+! 
+! 
+!
+!
+flow exporter NetFlow-Monitor
+ destination 10.74.168.101
+ source Loopback0
+ transport udp 2055
+!
+!
+flow exporter NetFlow-to-Orion
+!
+!
+flow monitor NetFlow-Monitor
+ description Original Netflow captures 
+ exporter NetFlow-to-Orion
+ cache timeout inactive 10
+ cache timeout active 60
+ record netflow ipv4 original-input
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-175030562
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-175030562
+ revocation-check none
+ rsakeypair TP-self-signed-175030562
+!
+!
+crypto pki certificate chain TP-self-signed-175030562
+ certificate self-signed 01
+  3082032E 30820216 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 31373530 33303536 32301E17 0D313930 38303730 31303933 
+  305A170D 33303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3137 35303330 
+  35363230 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 82010A02 
+  82010100 B665353F 0B109111 D9B611EF 09D81882 C2F2E78B 44960C5B 5FF70633 
+  FF2C52D5 598872CB F991E3D8 A38B6EB3 ADB2E5E5 6280CB04 EFCF2F1E 08E211BB 
+  BE978963 A55788D4 7895B7F6 044D2428 2CF83143 A589E4C5 A22A30B1 D8FFA573 
+  AB655B6A 4ACD05DA 9F455D37 74EAE78D 954BFBBB 5F50C7A1 5BE447CC DF627770 
+  57F91BCA DD0A7D82 29915C60 02E11015 682A2497 F88F8729 7A15DC1E B3E7843A 
+  8BFA508D FD0881C6 F57D04F3 6FF294F5 DAB7F7B8 DABA4735 499B81F5 E227C202 
+  705FB575 CE88B2D5 68A81D39 850A5774 AD592720 DC84C5C5 2ABFC66F EED39C7F 
+  BDA7EC6C D5312902 A2A19F5D 852F04F8 38DE3BCD 81125505 F9A692C2 25812196 
+  7B061DD1 02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F 
+  0603551D 23041830 168014E2 EDA4ADFB 5E4D431F 050B6389 1C4374CB 5EEEBE30 
+  1D060355 1D0E0416 0414E2ED A4ADFB5E 4D431F05 0B63891C 4374CB5E EEBE300D 
+  06092A86 4886F70D 01010505 00038201 01005A30 096B9179 945FA723 70859664 
+  3E3A5000 D0DC16E1 FFE064C0 6E793FE0 CE3A32E1 943D7DA9 5704684C FF86E9C7 
+  5F9FEEBA 7D35223C 247F39A2 85B278A2 3D13D294 631B87CF A2DDDC9A F12948E7 
+  82BB5603 17D07E0C 13F1FF57 50CC5F0D 1CBBDB91 8996B826 DB0D8259 992A2BFC 
+  F4B1FFE9 72D2B4DB A1E0E66A 0EC2EC26 FC0A7E32 37812E66 5DC1BFCC 4BE83E3E 
+  B4650EC2 34C2FD7B 1368F97E 7D9C45AA 5EF2CDD9 BCC326EE C7B07345 664F1CEE 
+  71B58652 137493E3 04A315AD D027EE2C F7BE1DF7 35034643 3E86A324 F3341AB5 
+  DD56F320 530EA32C 628AD8F5 877D1BB4 089C449A 4ED5AC8C 167492FA 8289032E 
+  B48354E9 33DC0079 0D20C7D7 9B45FBAC B4BC
+  	quit
+!
+license udi pid ASR1002-X sn JAE232018UV
+no license smart enable
+!
+spanning-tree extend system-id
+diagnostic bootup level minimal
+!
+!
+!
+!
+!
+object-group network MALICIOUS_IP_BLOCK 
+ host 202.120.38.243
+ host 138.197.152.102
+ host 38.39.201.117
+ host 149.56.110.57
+ host 64.57.148.50
+ host 80.82.70.140
+ host 185.39.11.105
+ host 210.112.41.71
+ host 85.92.108.246
+ host 144.172.73.39
+ host 157.245.251.187
+ host 93.157.62.102
+ host 80.82.78.85
+ host 45.148.121.124
+ host 89.187.174.198
+ host 114.243.211.182
+ host 139.162.33.228
+ host 185.225.19.240
+ host 84.17.37.239
+ host 95.181.152.6
+ host 91.241.19.122
+!
+!
+!
+username gencore privilege 15 secret 5 $1$8BL5$8zOMO9H41EdnyEaapFJp5.
+!
+redundancy
+ mode none
+!
+!
+!
+!
+!
+!
+cdp run
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface Loopback0
+ description # Source interface for Monitoring ##
+ ip flow monitor NetFlow-Monitor input
+ ip address 10.100.254.193 255.255.255.255
+ no ip redirects
+ no ip proxy-arp
+!
+interface Loopback1
+ ip address 182.94.236.2 255.255.255.255
+ shutdown
+!
+interface Loopback2
+ ip address 182.94.236.3 255.255.255.255
+ shutdown
+!
+interface Loopback100
+ description << Primary P-ZEN ZScaler Source >>
+ ip address 182.94.236.5 255.255.255.255
+!
+interface Tunnel50
+ description << TO | ZSCALAR CHENNAI | PRIMARY >>
+ ip address 172.18.148.193 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ shutdown
+ keepalive 10 3
+ tunnel source 182.94.236.2
+ tunnel destination 165.225.104.32
+ ip virtual-reassembly
+!
+interface Tunnel51
+ description << TO | ZSCALAR CHENNAI | SECONDARY>>
+ ip address 172.20.26.189 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ shutdown
+ keepalive 10 3
+ tunnel source 182.94.236.3
+ tunnel destination 165.225.106.32
+ ip virtual-reassembly
+!
+interface Tunnel100
+ description << P-ZEN ZScaler Private Tunnel - Primary Destination CRQ000000093019 >>
+ ip address 172.20.139.33 255.255.255.252
+ ip mtu 1476
+ ip tcp adjust-mss 1436
+ load-interval 30
+ keepalive 10 3
+ tunnel source Loopback100
+ tunnel destination 104.129.202.118
+ ip virtual-reassembly
+!
+interface GigabitEthernet0/0/0
+ description INTINDCOSTATPRIUNMSHA $100Mbps
+ ip flow monitor NetFlow-Monitor input
+ ip address 121.241.55.130 255.255.255.252
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat outside
+ ip access-group ISP-COS-IN in
+ load-interval 30
+ no negotiation auto
+!
+interface GigabitEthernet0/0/1
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet0/0/2
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet0/0/3
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet0/0/4
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet0/0/5
+ ip address 182.94.237.1 255.255.255.0
+ negotiation auto
+!
+interface TenGigabitEthernet0/1/0
+ description << To | IND-COS-GSD-IL2-SW-OUT | Te 1/1/1 >>
+ ip flow monitor NetFlow-Monitor input
+ ip address 10.100.252.114 255.255.255.240
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip nat inside
+ standby 81 ip 10.100.252.113
+ standby 81 priority 150
+ standby 81 preempt
+!
+interface TenGigabitEthernet0/2/0
+ description << To | INT-RT-02 | Te 0/2/0 >>
+ ip address 10.100.254.9 255.255.255.252
+ no ip unreachables
+ no ip proxy-arp
+ ip nat outside
+!
+interface TenGigabitEthernet0/3/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0
+ description << TO | OOB-COR-SW-01 | Gi 1/0/2 >>
+ vrf forwarding Mgmt-intf
+ ip address 10.100.250.28 255.255.255.0
+ negotiation auto
+!
+router bgp 17466
+ bgp router-id 10.100.254.193
+ bgp log-neighbor-changes
+ neighbor 10.100.254.10 remote-as 17466
+ neighbor 10.100.254.10 description ##iBGP To INT-RT-02##
+ neighbor 10.100.254.10 version 4
+ neighbor 10.100.254.10 timers 7 14
+ neighbor 121.241.55.129 remote-as 4755
+ neighbor 121.241.55.129 description ##eBGP To TATA-PE##
+ neighbor 121.241.55.129 password 7 070872425E291A52401107
+ neighbor 121.241.55.129 version 4
+ neighbor 121.241.55.129 timers 7 14
+ !
+ address-family ipv4
+  bgp dampening 14 900 2000 56
+  bgp scan-time 15
+  network 182.94.236.0 mask 255.255.255.0
+  neighbor 10.100.254.10 activate
+  neighbor 10.100.254.10 soft-reconfiguration inbound
+  neighbor 121.241.55.129 activate
+  neighbor 121.241.55.129 soft-reconfiguration inbound
+  neighbor 121.241.55.129 route-map ISP_IN in
+  neighbor 121.241.55.129 route-map ISP_OUT out
+ exit-address-family
+!
+ip nat settings gatekeeper-size 65536
+ip nat translation tcp-timeout 600
+ip nat translation max-entries 2147483647
+ip nat pool COMMON-PAT-POOL 182.94.236.1 182.94.236.1 netmask 255.255.255.128
+ip nat pool CYTIVA-PAT-POOL 182.94.236.73 182.94.236.73 netmask 255.255.255.128
+ip nat inside source static 10.100.252.2 182.94.236.2
+ip nat inside source static 10.100.252.3 182.94.236.3
+ip nat inside source static 10.100.254.29 182.94.236.4
+ip nat inside source static 10.100.24.5 182.94.236.7
+ip nat inside source static 10.100.24.9 182.94.236.8
+ip nat inside source static network 182.94.127.128 182.94.236.128 /25
+ip nat inside source list COMMON-PAT-ACL pool COMMON-PAT-POOL overload
+ip nat inside source list CYTIVA-PAT-ACL pool CYTIVA-PAT-POOL overload
+ip forward-protocol nd
+no ip http server
+ip http authentication local
+no ip http secure-server
+ip tftp source-interface GigabitEthernet0
+ip route 10.74.168.96 255.255.255.224 10.100.252.116 name SOLARWIND
+ip route 10.100.24.5 255.255.255.255 10.100.252.116 name ADM_IVPN
+ip route 10.100.24.9 255.255.255.255 10.100.252.116 name ARYZTA_IVPN_#CRQ000000094847
+ip route 10.100.250.26 255.255.255.255 10.100.252.116 name BZ-FW-MGMT-IP-TEMP
+ip route 10.100.250.27 255.255.255.255 10.100.252.116 name BZ-FW-MGMT-IP-TEMP
+ip route 10.100.250.51 255.255.255.255 10.100.252.116 name NEW-VPN-FIREWALL-TEST
+ip route 10.100.250.52 255.255.255.255 10.100.252.116 name NEW-VPN-FIREWALL-TEST
+ip route 10.100.252.2 255.255.255.255 10.100.252.116 name ZScaler_TU_SRC_IP
+ip route 10.100.252.3 255.255.255.255 10.100.252.116 name ZScaler_TU_SRC_IP
+ip route 10.100.252.5 255.255.255.255 10.100.252.116 name INT-FW-MGMT-IP-TEMP
+ip route 10.100.252.6 255.255.255.255 10.100.252.116 name INT-FW-MGMT-IP-TEMP
+ip route 10.100.254.29 255.255.255.255 10.100.252.116 name TENNECO_IVPN
+ip route 10.100.254.194 255.255.255.255 10.100.252.115 name INT-RTR-2-LOOPBACK0
+ip route 10.109.5.0 255.255.255.0 10.100.252.116 name REED-OPEN-INT
+ip route 10.111.0.0 255.255.0.0 10.100.252.116 name VPN-SUBNET-POOL
+ip route 10.111.98.0 255.255.255.0 10.100.252.116 name HUMANA-BCP-VPN_#CRQ000000089599
+ip route 10.111.115.0 255.255.255.0 10.100.252.116 name BRIGHT-CLAIM-VPN-POOL
+ip route 10.111.118.160 255.255.255.240 10.100.252.116 name WALLGREENS-VPN-SUBNET
+ip route 10.111.119.0 255.255.255.0 10.100.252.116 name AMGEN-BCP-VPN_#CRQ000000096435
+ip route 58.2.47.116 255.255.255.255 10.100.252.116 name TACACS-PHV
+ip route 58.2.58.181 255.255.255.255 10.100.252.116 name TACACS-UPPAL
+ip route 58.2.58.250 255.255.255.255 10.100.252.116 name JUMP-BOX
+ip route 58.2.200.0 255.255.248.0 10.100.252.116 name MGMT-IP-GENPACT
+ip route 119.43.85.135 255.255.255.255 10.100.252.116 name tuffin
+ip route 119.43.96.17 255.255.255.255 10.100.252.116 name Automation_Server_COS
+ip route 119.43.98.6 255.255.255.255 10.100.252.116 name ZSCALLER
+ip route 119.43.98.7 255.255.255.255 10.100.252.116 name ZSCALLER
+ip route 119.43.99.66 255.255.255.255 10.100.252.116 name Syslog_server
+ip route 119.43.179.0 255.255.255.192 10.100.252.116 name PAM-SOUTH-UPL
+ip route 124.4.17.16 255.255.255.255 10.100.252.116 name Automation_Server_CON
+ip route 124.4.17.25 255.255.255.255 10.100.252.116 name Automation_Server_CON
+ip route 124.4.126.128 255.255.255.192 10.100.252.116 name PAM-NORTH-COLO
+ip route 172.16.120.0 255.255.255.0 10.100.252.116 name COLO_VOIC
+ip route 172.18.148.194 255.255.255.255 Tunnel50
+ip route 172.20.26.190 255.255.255.255 Tunnel51
+ip route 182.94.47.18 255.255.255.255 10.100.252.116 name North-COLO_TACACS_Server
+ip route 182.94.47.22 255.255.255.255 10.100.252.116 name North-COLO_Jump-Server
+ip route 182.94.127.128 255.255.255.128 10.100.252.116 name DMZ-SRV-POOL
+ip route 182.94.152.120 255.255.255.255 10.100.252.116 name NORTH-BMC-COLO
+ip route 182.94.236.0 255.255.255.0 Null0 name GEN-SCOLO-DC-Prefix-I
+ip route 182.94.236.6 255.255.255.255 10.100.254.10 name ZSCALER-PZEN-TUNNEL
+ip route 182.94.236.112 255.255.255.240 10.100.252.116 name ANYCONNECT_VPN_PUBLIC_POOL
+ip route 182.95.130.133 255.255.255.255 10.100.252.116 name Cinci_Jumpserver
+ip route 185.46.212.90 255.255.255.255 Tunnel100 name PZEN_ZSCALER_PROXY_IP
+ip route 185.46.212.90 255.255.255.255 10.100.254.10 220 name PZEN_ZSCALER_PROXY_IP
+ip route vrf Mgmt-intf 0.0.0.0 0.0.0.0 10.100.250.1 name OOB-COR
+ip tacacs source-interface Loopback0 
+!
+ip ssh time-out 30
+ip ssh authentication-retries 5
+ip ssh version 2
+!
+!
+ip prefix-list GEN-SCOLO-DC-Prefix seq 5 permit 182.94.236.0/24
+!
+ip prefix-list ISP_IN seq 5 permit 0.0.0.0/0
+!
+ip access-list standard GNPT-LGN
+ permit 119.43.99.7
+ permit 182.95.95.244
+ permit 182.95.95.245
+ permit 182.95.95.242
+ permit 182.95.95.243
+ permit 182.95.95.250
+ permit 58.2.36.106
+ permit 119.43.85.135
+ permit 119.43.101.146
+ permit 58.2.58.250
+ permit 58.2.201.0 0.0.0.255
+ permit 10.74.168.96 0.0.0.31
+ permit 10.74.172.96 0.0.0.31
+ permit 10.100.254.0 0.0.0.255
+ permit 10.100.252.0 0.0.0.255
+ permit 10.100.250.0 0.0.0.255
+ permit 58.2.200.0 0.0.7.255
+ permit 58.2.0.0 0.0.255.255
+!
+ip access-list extended COMMON-PAT-ACL
+ remark << INT FW - MGMT IP >>
+ permit ip host 10.100.252.5 any
+ permit ip host 10.100.252.6 any
+ remark << BZ FW - MGMT IP >>
+ permit ip host 10.100.250.26 any
+ permit ip host 10.100.250.27 any
+ permit ip host 119.43.98.6 any
+ permit ip host 119.43.98.7 any
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.42
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.43
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.44
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.45
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.46
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.47
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.48
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.49
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.222
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.239
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.221
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.223
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.224
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.80.79
+ permit ip 172.16.120.0 0.0.0.255 host 54.183.142.105
+ permit ip 172.16.120.0 0.0.0.255 host 54.183.135.80
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.94.52
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.36
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.81.37
+ permit ip 10.111.98.0 0.0.0.255 host 205.145.95.36
+ permit ip 10.111.98.0 0.0.0.255 host 104.18.14.170
+ permit ip 10.111.98.0 0.0.0.255 host 104.18.15.170
+ permit ip 10.111.118.160 0.0.0.15 host 204.15.119.138
+ permit ip 10.111.118.160 0.0.0.15 host 204.15.118.191
+ permit ip 10.111.0.0 0.0.255.255 any
+ permit ip 10.109.5.0 0.0.0.255 52.0.0.0 0.255.255.255
+ permit ip 10.109.5.0 0.0.0.255 54.0.0.0 0.255.255.255
+ deny   ip any any
+ip access-list extended CYTIVA-PAT-ACL
+ permit ip 10.111.252.0 0.0.1.255 any
+ deny   ip any any
+ip access-list extended ISP-COS-IN
+ deny   ip object-group MALICIOUS_IP_BLOCK any
+ deny   ip host 222.186.52.78 any
+ deny   tcp any host 124.4.160.4 eq 22 telnet www 443
+ permit ip any host 182.94.236.1
+ deny   tcp any host 216.195.77.9 eq 22 telnet www 443
+ deny   tcp any host 216.195.64.30 eq 22 telnet www 443
+ deny   tcp any host 58.2.241.102 eq 22 telnet www 443
+ deny   tcp any host 216.195.77.50 eq 22 telnet www 443
+ deny   ip host 178.62.29.238 any
+ deny   ip host 59.63.188.2 any
+ deny   ip host 183.129.255.34 any
+ deny   ip 116.31.116.0 0.0.0.255 any
+ deny   ip host 189.63.219.95 any
+ deny   ip host 197.210.227.21 any
+ deny   ip host 178.135.88.86 any
+ deny   ip host 120.89.79.2 any
+ deny   ip host 178.135.82.166 any
+ deny   ip host 43.247.156.164 any
+ deny   ip 213.131.252.0 0.0.0.255 any
+ deny   ip host 120.89.79.20 any
+ deny   ip host 191.102.196.56 any
+ deny   ip host 41.65.198.130 any
+ deny   ip host 209.58.130.106 any
+ deny   ip host 185.10.68.150 any
+ deny   ip host 178.135.82.247 any
+ deny   ip host 178.135.82.85 any
+ deny   ip host 45.63.79.64 any
+ deny   ip host 46.166.148.176 any
+ deny   ip host 58.1.144.80 any
+ deny   ip host 52.74.204.84 any
+ deny   ip host 185.165.29.78 any
+ deny   ip host 84.200.16.242 any
+ deny   ip host 111.90.139.247 any
+ deny   ip host 103.66.16.3 any
+ deny   ip host 49.128.160.106 any
+ deny   ip host 123.130.124.99 any
+ deny   ip host 190.106.223.34 any
+ deny   ip host 23.228.109.165 any
+ deny   ip host 146.185.39.111 any
+ deny   ip host 77.247.11.248 any
+ deny   ip host 66.240.192.138 any
+ deny   ip host 190.113.211.7 any
+ deny   ip host 43.230.105.66 any
+ deny   ip host 110.44.126.237 any
+ deny   ip host 221.203.168.131 any
+ deny   ip host 122.176.63.63 any
+ deny   ip host 153.2.7.101 any
+ deny   ip host 62.210.209.201 any
+ deny   ip host 101.251.236.118 any
+ deny   ip host 213.132.46.124 any
+ deny   ip host 101.96.76.44 any
+ deny   ip host 199.68.196.125 any
+ deny   ip host 23.92.127.18 any
+ deny   ip host 45.79.187.249 any
+ deny   ip host 222.186.12.40 any
+ deny   ip host 140.250.121.116 any
+ deny   ip host 185.172.110.38 any
+ deny   ip host 80.211.150.32 any
+ deny   ip host 198.211.104.123 any
+ deny   ip host 159.65.109.42 any
+ deny   ip host 191.96.249.80 any
+ deny   ip host 61.184.95.194 any
+ deny   ip host 54.87.128.23 any
+ deny   ip host 23.92.127.66 any
+ deny   ip host 61.191.63.198 any
+ deny   ip host 69.161.196.67 any
+ deny   ip host 104.233.73.34 any
+ deny   ip host 98.124.251.75 any
+ deny   ip host 66.36.173.111 any
+ deny   ip host 66.36.165.149 any
+ deny   ip host 5.2.77.79 any
+ deny   ip host 185.57.172.213 any
+ deny   ip host 62.196.180.28 any
+ deny   ip host 87.106.29.219 any
+ deny   ip host 218.24.205.153 any
+ deny   ip host 195.62.53.144 any
+ deny   ip host 192.162.103.213 any
+ deny   ip host 109.237.111.179 any
+ deny   ip host 78.108.93.185 any
+ deny   ip host 192.162.103.118 any
+ deny   ip host 5.187.5.171 any
+ deny   ip host 185.20.185.119 any
+ deny   ip host 173.254.28.36 any
+ deny   ip host 185.179.190.31 any
+ deny   ip host 91.201.28.35 any
+ deny   ip host 195.123.218.175 any
+ deny   ip host 212.109.220.109 any
+ deny   ip host 31.202.130.9 any
+ deny   ip host 185.80.148.137 any
+ deny   ip host 91.228.239.216 any
+ deny   ip host 31.202.128.249 any
+ deny   ip host 83.217.8.61 any
+ deny   ip host 91.234.35.106 any
+ deny   ip host 190.60.198.194 any
+ deny   tcp any any eq 4786
+ deny   ip host 89.46.70.118 any
+ deny   ip host 185.172.110.214 any
+ deny   ip host 221.194.44.212 any
+ deny   ip host 185.222.211.18 any
+ deny   ip host 107.170.237.112 any
+ deny   ip host 46.101.59.21 any
+ deny   ip host 198.167.136.139 any
+ deny   ip host 182.48.105.210 any
+ deny   ip host 218.53.106.7 any
+ deny   ip host 51.15.225.222 any
+ deny   ip host 185.244.25.219 any
+ deny   ip host 116.206.228.203 any
+ deny   ip host 37.59.52.83 any
+ deny   ip host 45.76.198.204 any
+ deny   ip host 45.77.106.29 any
+ deny   ip host 72.11.140.178 any
+ deny   ip host 91.121.140.167 any
+ deny   ip host 104.140.201.42 any
+ deny   ip host 104.207.141.144 any
+ deny   ip host 145.239.0.84 any
+ deny   ip host 165.227.215.25 any
+ deny   pim any any
+ deny   ip host 190.180.108.38 any
+ deny   ip host 124.251.110.142 any
+ deny   ip host 122.226.181.164 any
+ deny   ip host 186.103.199.252 any
+ deny   ip host 71.6.146.130 any
+ deny   ip host 217.13.106.203 any
+ deny   ip host 255.255.255.255 any
+ deny   ip host 136.243.24.136 any
+ deny   ip host 219.65.102.106 any
+ deny   ip host 39.83.53.253 any
+ deny   ip host 5.188.10.156 any
+ deny   ip host 82.200.168.101 any
+ deny   ip host 94.102.60.149 any
+ deny   ip host 122.226.181.165 any
+ deny   ip host 122.226.181.166 any
+ deny   ip 192.168.0.0 0.0.255.255 any
+ deny   ip host 39.115.204.222 any
+ deny   ip host 223.111.200.186 any
+ deny   ip host 83.151.232.250 any
+ deny   ip host 14.37.169.239 any
+ deny   ip host 60.2.79.183 any
+ deny   ip host 116.31.116.3 any
+ deny   ip host 168.167.51.10 any
+ deny   ip host 159.65.84.42 any
+ deny   ip host 129.232.228.235 any
+ deny   ip 172.16.0.0 0.0.15.255 any
+ deny   ip 10.0.0.0 0.255.255.255 any
+ deny   ip host 23.92.127.50 any
+ deny   ip host 185.220.70.141 any
+ deny   ip host 92.243.27.171 any
+ deny   ip host 66.240.205.34 any
+ deny   ip host 23.111.88.244 any
+ deny   ip host 185.77.248.4 any
+ deny   ip host 195.22.26.248 any
+ deny   ip host 199.59.242.151 any
+ deny   ip host 199.59.242.150 any
+ deny   ip host 184.75.214.131 any
+ deny   ip host 204.48.21.209 any
+ deny   ip host 45.67.14.199 any
+ deny   ip host 185.53.178.6 any
+ deny   ip host 212.80.216.202 any
+ deny   ip 224.0.0.0 7.255.255.255 any
+ deny   ip 240.0.0.0 7.255.255.255 any
+ deny   ip 248.0.0.0 7.255.255.255 any
+ deny   ip 127.0.0.0 0.255.255.255 any
+ deny   ip 58.2.232.0 0.0.7.255 any
+ deny   ip host 58.241.250.152 any
+ deny   ip host 103.200.30.162 any
+ deny   ip host 64.57.148.50 any
+ deny   ip host 103.206.123.13 any
+ deny   ip host 103.206.122.245 any
+ deny   ip host 104.248.167.144 any
+ deny   ip host 104.156.249.231 any
+ deny   ip host 103.99.0.121 any
+ deny   ip host 58.218.198.146 any
+ deny   ip host 82.102.27.52 any
+ deny   ip host 192.99.142.226 any
+ deny   ip host 82.146.58.234 any
+ deny   ip host 83.220.169.247 any
+ deny   ip host 91.201.42.5 any
+ deny   ip host 107.174.47.156 any
+ deny   ip host 83.220.169.24 any
+ deny   ip host 51.38.203.146 any
+ deny   ip host 45.76.122.92 any
+ deny   ip host 51.15.56.161 any
+ deny   ip host 158.69.133.18 any
+ deny   ip host 104.248.4.162 any
+ deny   ip host 89.35.39.78 any
+ deny   ip host 104.248.53.213 any
+ deny   ip host 176.31.6.16 any
+ deny   ip host 144.217.45.45 any
+ deny   ip host 46.243.253.15 any
+ deny   ip host 200.68.17.196 any
+ deny   ip host 188.209.49.54 any
+ deny   ip host 181.214.87.241 any
+ deny   ip host 27.155.87.59 any
+ deny   ip host 51.38.133.232 any
+ deny   ip host 104.160.171.94 any
+ deny   ip host 170.178.178.57 any
+ deny   ip host 91.236.182.1 any
+ deny   ip host 52.15.72.79 any
+ deny   ip host 52.15.62.13 any
+ deny   ip host 82.102.21.217 any
+ deny   ip host 45.67.14.146 any
+ deny   ip host 210.83.205.177 any
+ deny   ip host 185.244.25.107 any
+ deny   ip host 202.99.11.99 any
+ deny   ip host 218.75.199.50 any
+ deny   ip host 74.195.12.152 any
+ deny   ip host 139.193.177.165 any
+ deny   ip host 132.148.87.249 any
+ deny   ip host 13.7.57.94 any
+ deny   ip host 60.161.78.144 any
+ deny   ip host 89.34.153.157 any
+ deny   ip host 54.243.123.39 any
+ deny   ip host 23.21.121.219 any
+ deny   ip host 23.23.114.123 any
+ deny   ip host 50.16.248.221 any
+ deny   ip host 50.19.229.252 any
+ deny   ip host 54.221.234.215 any
+ deny   ip host 54.243.179.137 any
+ deny   ip host 185.232.64.20 any
+ deny   ip host 185.232.64.21 any
+ deny   ip host 185.232.64.22 any
+ deny   ip host 185.232.64.23 any
+ deny   ip host 185.232.64.24 any
+ deny   ip host 185.232.64.25 any
+ deny   ip host 185.232.64.26 any
+ deny   ip host 185.232.64.27 any
+ deny   ip host 185.232.64.28 any
+ deny   ip host 185.232.64.29 any
+ deny   ip host 185.232.64.30 any
+ deny   ip host 185.232.64.31 any
+ deny   ip host 185.232.64.32 any
+ deny   ip host 185.232.64.33 any
+ deny   ip host 185.232.64.34 any
+ deny   ip host 185.232.64.35 any
+ deny   ip host 185.94.111.1 any
+ deny   ip host 116.203.73.12 any
+ deny   ip host 206.132.109.109 any
+ deny   ip host 45.117.236.122 any
+ deny   ip host 194.88.106.235 any
+ deny   ip host 155.94.89.42 any
+ deny   ip host 83.136.86.199 any
+ deny   ip host 188.166.185.33 any
+ deny   ip host 185.130.207.83 any
+ deny   ip host 173.172.228.205 any
+ deny   ip host 124.40.244.133 any
+ deny   ip host 112.85.42.187 any
+ deny   ip host 118.92.253.125 any
+ permit tcp any eq 443 host 182.94.236.73
+ permit ip host 121.241.55.129 any
+ permit ip host 8.8.8.8 any
+ permit ip host 4.2.2.2 any
+ permit ip host 115.112.18.21 any
+ permit ip host 115.112.18.131 any
+ permit ip host 115.112.18.22 any
+ permit ip host 192.55.140.219 host 182.94.236.4
+ permit ip host 115.112.18.130 any
+ permit ip host 182.19.95.34 any
+ permit ip host 182.19.95.66 any
+ permit gre host 165.225.104.32 host 182.94.236.2
+ permit ip 165.225.0.0 0.0.255.255 any
+ permit gre host 165.225.106.32 host 182.94.236.3
+ permit tcp any host 182.94.236.113 eq 443
+ permit ip host 104.129.202.118 any
+ permit tcp any host 182.94.236.114 eq 443
+ permit ip host 204.15.119.138 host 182.94.236.1
+ permit ip host 204.15.118.191 host 182.94.236.1
+ permit ip host 13.127.148.174 host 182.94.236.1
+ permit ip host 52.66.123.138 host 182.94.236.1
+ permit ip host 52.66.51.4 host 182.94.236.1
+ permit ip host 13.127.212.107 host 182.94.236.1
+ permit ip host 52.66.116.178 host 182.94.236.1
+ permit ip host 13.127.26.17 host 182.94.236.1
+ permit ip host 13.127.99.160 host 182.94.236.1
+ permit ip host 52.66.115.172 host 182.94.236.1
+ permit ip host 13.126.9.75 host 182.94.236.1
+ permit ip host 13.234.57.151 host 182.94.236.1
+ permit ip host 12.43.91.215 host 182.94.236.7
+ permit ip host 62.216.235.68 host 182.94.236.8
+ permit ip 52.0.0.0 0.255.255.255 host 182.94.236.1
+ permit ip 54.0.0.0 0.255.255.255 host 182.94.236.1
+ deny   ip any any
+logging history notifications
+logging trap notifications
+logging facility local5
+logging source-interface GigabitEthernet0 vrf Mgmt-intf
+logging host 119.43.99.66 vrf Mgmt-intf
+access-list 84 permit 10.198.60.27
+access-list 84 permit 58.2.174.121
+access-list 84 permit 10.74.168.96 0.0.0.31
+access-list 84 permit 10.74.172.96 0.0.0.31
+access-list 85 permit 10.74.168.96 0.0.0.31
+access-list 85 permit 10.74.172.96 0.0.0.31
+access-list 88 permit 182.94.152.120
+access-list 88 permit 10.74.168.105
+!
+!
+route-map ISP_IN permit 10 
+ match ip address prefix-list ISP_IN
+!
+route-map ISP_OUT permit 10 
+ match ip address prefix-list GEN-SCOLO-DC-Prefix
+!
+snmp-server group admin v3 auth 
+snmp-server community S0L@GenpactC$ RO 84
+snmp-server community S0L@GenpactC! RW 85
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps vrrp
+snmp-server enable traps pfr
+snmp-server enable traps flowmon
+snmp-server enable traps ds1
+snmp-server enable traps entity-perf throughput-notif
+snmp-server enable traps call-home message-send-fail server-fail
+snmp-server enable traps tty
+snmp-server enable traps eigrp
+snmp-server enable traps casa
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps ospf cisco-specific state-change nssa-trans-change
+snmp-server enable traps ospf cisco-specific state-change shamlink interface
+snmp-server enable traps ospf cisco-specific state-change shamlink neighbor
+snmp-server enable traps ospf cisco-specific errors
+snmp-server enable traps ospf cisco-specific retransmit
+snmp-server enable traps ospf cisco-specific lsa
+snmp-server enable traps smart-license
+snmp-server enable traps license
+snmp-server enable traps atm subif
+snmp-server enable traps bfd
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps config-ctid
+snmp-server enable traps dial
+snmp-server enable traps diameter
+snmp-server enable traps dlsw
+snmp-server enable traps dsp card-status
+snmp-server enable traps dsp oper-state
+snmp-server enable traps dsp video-usage
+snmp-server enable traps dsp video-out-of-resource
+snmp-server enable traps fru-ctrl
+snmp-server enable traps entity
+snmp-server enable traps event-manager
+snmp-server enable traps frame-relay multilink bundle-mismatch
+snmp-server enable traps frame-relay
+snmp-server enable traps frame-relay subif
+snmp-server enable traps hsrp
+snmp-server enable traps pppoe
+snmp-server enable traps cpu threshold
+snmp-server enable traps ipsla
+snmp-server enable traps syslog
+snmp-server enable traps l2tun session
+snmp-server enable traps l2tun pseudowire status
+snmp-server enable traps pki
+snmp-server enable traps adslline
+snmp-server enable traps vdsl2line
+snmp-server enable traps ethernet evc status create delete
+snmp-server enable traps ether-oam
+snmp-server enable traps ethernet cfm cc mep-up mep-down cross-connect loop config
+snmp-server enable traps ethernet cfm crosscheck mep-missing mep-unknown service-up
+snmp-server enable traps entity-qfp mem-res-thresh throughput-notif
+snmp-server enable traps entity-state
+snmp-server enable traps entity-sensor
+snmp-server enable traps flash insertion removal lowspace
+snmp-server enable traps firewall serverstatus
+snmp-server enable traps netsync
+snmp-server enable traps ptp
+snmp-server enable traps lost-ptp-slave
+snmp-server enable traps breach-ptp-offset-threshold
+snmp-server enable traps sbc adj-status
+snmp-server enable traps sbc blacklist
+snmp-server enable traps sbc congestion-alarm
+snmp-server enable traps sbc h248-ctrlr-status
+snmp-server enable traps sbc media-source
+snmp-server enable traps sbc radius-conn-status
+snmp-server enable traps sbc sla-violation
+snmp-server enable traps sbc sla-violation-rev1
+snmp-server enable traps sbc svc-state
+snmp-server enable traps sbc qos-statistics
+snmp-server enable traps srp
+snmp-server enable traps isdn call-information
+snmp-server enable traps isdn layer2
+snmp-server enable traps isdn chan-not-avail
+snmp-server enable traps isdn ietf
+snmp-server enable traps cnpd
+snmp-server enable traps entity-diag boot-up-fail hm-test-recover hm-thresh-reached scheduled-test-fail
+snmp-server enable traps cef resource-failure peer-state-change peer-fib-state-change inconsistency
+snmp-server enable traps sonet
+snmp-server enable traps resource-policy
+snmp-server enable traps otn
+snmp-server enable traps ip local pool
+snmp-server enable traps lisp
+snmp-server enable traps aaa_server
+snmp-server enable traps dhcp
+snmp-server enable traps auth-framework sec-violation
+snmp-server enable traps pw vc
+snmp-server enable traps mpls rfc ldp
+snmp-server enable traps mpls ldp
+snmp-server enable traps mpls rfc traffic-eng
+snmp-server enable traps mpls traffic-eng
+snmp-server enable traps mpls fast-reroute protected
+snmp-server enable traps rsvp
+snmp-server enable traps ipmulticast
+snmp-server enable traps msdp
+snmp-server enable traps pim neighbor-change rp-mapping-change invalid-pim-message
+snmp-server enable traps mvpn
+snmp-server enable traps pimstdmib neighbor-loss invalid-register invalid-join-prune rp-mapping-change interface-election
+snmp-server enable traps isis
+snmp-server enable traps bgp
+snmp-server enable traps bgp cbgp2
+snmp-server enable traps ospfv3 state-change
+snmp-server enable traps ospfv3 errors
+snmp-server enable traps nhrp nhs
+snmp-server enable traps nhrp nhc
+snmp-server enable traps nhrp nhp
+snmp-server enable traps nhrp quota-exceeded
+snmp-server enable traps ike policy add
+snmp-server enable traps ike policy delete
+snmp-server enable traps ike tunnel start
+snmp-server enable traps ike tunnel stop
+snmp-server enable traps ipsec cryptomap add
+snmp-server enable traps ipsec cryptomap delete
+snmp-server enable traps ipsec cryptomap attach
+snmp-server enable traps ipsec cryptomap detach
+snmp-server enable traps ipsec tunnel start
+snmp-server enable traps ipsec tunnel stop
+snmp-server enable traps ipsec too-many-sas
+snmp-server enable traps gdoi gm-start-registration
+snmp-server enable traps gdoi gm-registration-complete
+snmp-server enable traps gdoi gm-re-register
+snmp-server enable traps gdoi gm-rekey-rcvd
+snmp-server enable traps gdoi gm-rekey-fail
+snmp-server enable traps gdoi ks-rekey-pushed
+snmp-server enable traps gdoi gm-incomplete-cfg
+snmp-server enable traps gdoi ks-no-rsa-keys
+snmp-server enable traps gdoi ks-new-registration
+snmp-server enable traps gdoi ks-reg-complete
+snmp-server enable traps gdoi ks-role-change
+snmp-server enable traps gdoi ks-gm-deleted
+snmp-server enable traps gdoi ks-peer-reachable
+snmp-server enable traps gdoi ks-peer-unreachable
+snmp-server enable traps bulkstat collection transfer
+snmp-server enable traps alarms informational
+snmp-server enable traps voice
+snmp-server enable traps ethernet cfm alarm
+snmp-server enable traps rf
+snmp-server enable traps transceiver all
+snmp-server enable traps mpls vpn
+snmp-server enable traps mpls rfc vpn
+snmp-server enable traps vrfmib vrf-up vrf-down vnet-trunk-up vnet-trunk-down
+snmp-server host 10.74.168.100 S 
+snmp-server host 10.74.168.100 S0L@GenpactC! 
+snmp-server host 10.74.172.121 S0L@GenpactC! 
+snmp-server host 10.74.172.124 S0L@GenpactC! 
+snmp-server host 182.94.81.46 S0L@GenpactC! 
+snmp-server host 10.74.168.100 S0L@GenpactC$ 
+snmp-server host 10.74.172.121 S0L@GenpactC$ 
+snmp-server host 182.94.81.46 S0L@GenpactC$ 
+tacacs-server host 182.94.47.18
+tacacs-server host 58.2.47.116
+tacacs-server host 58.2.58.181
+tacacs-server directed-request
+tacacs-server key 7 0221245E05160E22581F5B4A
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+privilege exec level 2 telnet
+privilege exec level 2 traceroute
+privilege exec level 2 ping
+privilege exec level 3 undebug all
+privilege exec level 3 undebug
+privilege exec level 2 show cdp neighbors detail
+privilege exec level 2 show cdp neighbors
+privilege exec level 2 show cdp
+privilege exec level 2 show ip accounting output-packets
+privilege exec level 2 show ip accounting
+privilege exec level 2 show ip route
+privilege exec level 2 show ip interface brief
+privilege exec level 2 show ip interface
+privilege exec level 2 show ip
+privilege exec level 2 show access-lists
+privilege exec level 2 show logging
+privilege exec level 3 show startup-config
+privilege exec level 2 show interfaces
+privilege exec level 2 show
+privilege exec level 3 debug all
+privilege exec level 3 debug
+privilege exec level 3 clear line
+privilege exec level 3 clear interface
+privilege exec level 3 clear counters
+privilege exec level 3 clear
+banner exec ^CC
++-------------------------------------------------------------------+
+| The level now being accessed and information available through    |
+| this equipment is highly confidential and proprietary. It may be  |
+| accessed or used only as specifically authorized. All other access|
+| or use is prohibited and is subject to legal action!              |
++-------------------------------------------------------------------+
+^C
+banner login ^C
+ +----------------------------------------------------------------------+
+ |   This system is for the use of authorized users only.               |
+ |   Individuals using this system without authority, or in             |
+ |   excess of their authority, are subject to having all of their      |
+ |   activities on this system monitored and recorded by system         |
+ |   personnel.                                                         |
+ |                                                                      |
+ |   In the course of monitoring individuals improperly using this      |
+ |   system, or in the course of system maintenance, the activities     |
+ |   of authorized users may also be monitored.                         |
+ |                                                                      |
+ |   Anyone using this system expressly consents to such monitoring     |
+ |   and is advised that if such monitoring reveals possible            |
+ |   evidence of criminal activity, system personnel may provide the    |
+ |   evidence of such monitoring to law enforcement officials.          |
+ |                                                                      |
+ +----------------------------------------------------------------------+
+^C
+banner motd ^C
+"You are accessing a restricted device"
+^C
+!
+line con 0
+ exec-timeout 15 0
+ stopbits 1
+line aux 0
+ no exec
+ stopbits 1
+line vty 0 4
+ access-class GNPT-LGN in vrf-also
+ exec-timeout 15 0
+ logging synchronous
+ transport input ssh
+ transport output telnet ssh
+line vty 5 15
+ exec-timeout 15 0
+ transport input ssh
+ transport output telnet ssh
+!
+scheduler interval 500
+ntp source Loopback0
+ntp server 58.2.40.169
+ntp server 58.2.64.145
+ntp server 58.2.47.148 prefer
+!
+!
+!
+!
+!
+!
+end

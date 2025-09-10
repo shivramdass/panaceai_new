@@ -1,0 +1,5 @@
+Host: Multiple Host
+OS: Unknown    
+Discovered Services: Service 
+Port shell 514/tcp
+Justification - It is required to send the syslogs / log events to QRadar components. Syslog traffic includes WinCollect agents, event collectors, and Adaptive Log Exporter agents capable of sending either UDP or TCP events to QRadar.

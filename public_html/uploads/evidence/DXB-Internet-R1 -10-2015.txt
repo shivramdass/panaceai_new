@@ -1,0 +1,362 @@
+=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2020.12.23 10:08:52 =~=~=~=~=~=~=~=~=~=~=~=
+
+Building configuration...
+
+Current configuration : 12430 bytes
+!
+! Last configuration change at 09:16:52 KWT Wed Dec 23 2020 by nt41sec
+! NVRAM config last updated at 17:06:42 KWT Sun Oct 18 2020 by Root2
+! NVRAM config last updated at 17:06:42 KWT Sun Oct 18 2020 by Root2
+version 15.3
+service tcp-keepalives-in
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+no service dhcp
+!
+hostname DXB-Internet-R1
+!
+boot-start-marker
+boot system flash0 c2900-universalk9-mz.SPA.153-3.M1.bin
+boot system flash0 c2900-universalk9-mz.SPA.152-4.M2.bin
+boot-end-marker
+!
+!
+logging buffered 10000 informational
+logging console critical
+enable secret 5 $1$mDXT$r9.e/BD.qLzTjm/GSz/m5/
+!
+aaa new-model
+!
+!
+aaa group server tacacs+ ACSServer
+ server 10.222.53.29
+ server 10.222.53.28
+ server 10.222.53.27
+!
+aaa authentication banner ^CCCC
+
+-------------------------------------------------------------------------------------------------
+
+"This is an official computer system and is the property of the
+National Bank of Kuwait. It is for authorized users only. Unauthorized users are prohibited. Users
+(authorized or unauthorized) have no explicit or implicit expectation of privacy. Any or all uses
+of this system may be subject to one or more of the following actions: interception, monitoring,
+recording, auditing, inspection and disclosing to security personnel and law enforcement
+personnel, as well as authorized officials of other agencies, both domestic and foreign. By using
+this system, the user consents to these actions. Unauthorized or improper use of this system
+may result in administrative disciplinary action and civil and criminal penalties. By accessing this
+system you indicate your awareness of and consent to these terms and conditions of use.
+Discontinue access immediately if you do not agree to the conditions stated in this notice"
+
+-------------------------------------------------------------------------------------------------
+^C
+aaa authentication login default group ACSServer local
+aaa authentication enable default group ACSServer enable
+aaa accounting exec default start-stop group ACSServer
+aaa accounting system default start-stop group ACSServer
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone KWT 3 0
+!
+ --More--         no ip source-route
+!
+!
+!
+ip dhcp excluded-address 10.10.10.1
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name nbk.com
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+key chain IPSEC-HA
+ key 20
+  key-string 7 06280A2E1B160B1B49
+!
+crypto pki trustpoint TP-self-signed-3372952980
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3372952980
+ revocation-check none
+ rsakeypair TP-self-signed-3372952980
+!
+!
+crypto pki certificate chain TP-self-signed-3372952980
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33333732 39353239 3830301E 170D3133 30333138 32313133 
+  30315A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 33373239 
+  35323938 3030819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100AF67 493C6D4E 9372273A A71E5A8F EB34D76F CE17EF1F 0EFC9293 D0C1FFCD 
+  9240F61A 124195DE B6269D14 44CB7EC6 4344A7A9 8F5C3BD5 8105A0EF 1A51ADC4 
+  40FA6C96 5E4111D7 C98A847D BAC1B53D 36FBB26D E936144D F8A8E21C B46906EE 
+  AD773B83 8A610732 BA016073 8F8BD9C4 C1F09603 BBE6117F 88538A2F 19D9D469 
+  0F030203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14D500E4 8D5C2FF0 B589774A BE7510E1 8AB34F60 B7301D06 
+  03551D0E 04160414 D500E48D 5C2FF0B5 89774ABE 7510E18A B34F60B7 300D0609 
+  2A864886 F70D0101 05050003 81810033 04B24BE1 E3377B8F E54C0DF6 2D5DCD03 
+  2F54737C 51014E14 CDE3335E 22B10322 FA7AE37A 69F7786A FD58D080 E3B54DF2 
+  CF5CDF2B BF2D5CA4 87D4E543 1C391E3B 2913B043 3B1D0221 0445536E 6C1A88E8 
+  B66D527B ECDEB11F D6604316 61A80002 393CE637 11C2A242 FF74F33D 4D70BBFD 
+  9D84395B 57963C3E 58227405 9E7593
+  	quit
+license udi pid CISCO2911/K9 sn FCZ17126097
+!
+!
+username root2 secret 5 $1$YjAK$1N8gOuwWxm3AM/rgZCa1C1
+!
+redundancy
+!
+!
+!
+!
+!
+ip ssh version 2
+ --More--         ! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface Embedded-Service-Engine0/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0/0
+ description ********** Internal Network ***********
+ ip address 94.56.41.43 255.255.255.248
+ ip access-group Inside_acl in
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ standby 200 ip 94.56.41.41
+ standby 200 priority 200
+ standby 200 preempt
+ standby 200 authentication md5 key-chain IPSEC-HA
+ standby 200 name INSIDE
+ no ip route-cache
+ duplex auto
+ speed auto
+ no cdp enable
+!
+interface GigabitEthernet0/1
+ description ***************** Internet Link to Etisalat *******************
+ ip address 151.253.71.194 255.255.255.248
+ ip access-group Internet_acl in
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip flow ingress
+ standby 111 ip 151.253.71.193
+ standby 111 priority 200
+ standby 111 preempt
+ standby 111 authentication md5 key-chain IPSEC-HA
+ standby 111 name ETISALAT
+ load-interval 30
+ duplex full
+ speed 100
+ no cdp enable
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+!
+ip route 0.0.0.0 0.0.0.0 151.253.71.198
+ip route 10.111.65.37 255.255.255.255 94.56.41.42
+ --More--         ip route 10.111.65.137 255.255.255.255 94.56.41.42
+ip route 10.210.100.2 255.255.255.255 94.56.41.42
+ip route 10.222.53.23 255.255.255.255 94.56.41.42
+ip route 10.222.53.24 255.255.255.255 94.56.41.42
+ip route 10.222.53.27 255.255.255.255 94.56.41.42
+ip route 10.222.53.28 255.255.255.255 94.56.41.42
+ip route 10.222.53.29 255.255.255.255 94.56.41.42
+ip route 195.226.232.37 255.255.255.255 83.111.64.157
+ip tacacs source-interface GigabitEthernet0/0
+!
+ip access-list standard VTY-ACCESS
+ permit 94.56.41.45
+ permit 94.56.41.44
+ permit 94.56.41.42
+ permit 10.210.100.30
+ permit 10.149.130.181
+ permit 10.149.130.173
+ permit 10.149.130.174
+ permit 10.149.130.171
+ permit 195.226.232.42
+ permit 10.152.12.123
+ permit 10.0.1.253
+ permit 10.152.12.0 0.0.0.255
+ deny   any log
+!
+ip access-list extended Inside_acl
+ permit ip host 94.56.41.42 host 83.111.118.226
+ permit udp host 94.56.41.42 host 83.111.118.226
+ permit esp host 94.56.41.42 host 83.111.118.226
+ permit tcp 94.56.41.42 0.0.0.1 any eq www
+ permit tcp 94.56.41.32 0.0.0.15 any eq www
+ permit tcp 94.56.41.32 0.0.0.15 any eq 443
+ permit tcp 94.56.41.32 0.0.0.15 any eq ftp
+ permit esp host 94.56.41.42 host 83.111.235.98
+ permit ahp host 94.56.41.42 host 83.111.235.98
+ permit udp host 94.56.41.42 host 83.111.235.98 eq isakmp
+ permit esp host 94.56.41.42 host 94.56.152.217
+ permit ahp host 94.56.41.42 host 94.56.152.217
+ permit udp host 94.56.41.42 host 94.56.152.217 eq isakmp
+ permit tcp 94.56.41.32 0.0.0.15 any eq domain
+ permit udp 94.56.41.32 0.0.0.15 any eq domain
+ permit tcp 94.56.41.32 0.0.0.15 any gt 1023
+ permit udp host 94.56.41.42 host 85.115.54.170 eq 9020
+ permit esp host 94.56.41.42 host 195.226.232.37
+ permit udp host 94.56.41.42 host 195.226.232.37 eq isakmp
+ permit ahp host 94.56.41.42 host 195.226.232.37
+ permit esp host 94.56.41.42 195.39.137.0 0.0.0.255
+ permit ahp host 94.56.41.42 195.39.137.0 0.0.0.255
+ permit udp host 94.56.41.42 195.39.137.0 0.0.0.255 eq isakmp
+ permit udp host 94.56.41.42 host 208.87.233.170 eq 9020
+ permit udp 94.56.41.32 0.0.0.15 host 224.0.0.2
+ permit tcp host 94.56.41.42 host 195.226.232.59 eq smtp
+ permit tcp host 10.222.53.29 eq tacacs host 94.56.41.43
+ permit tcp host 10.222.53.28 eq tacacs host 94.56.41.43
+ permit tcp host 10.222.53.27 eq tacacs host 94.56.41.43
+ permit tcp host 94.56.41.42 host 94.56.41.43 eq 22
+ permit tcp host 10.222.53.23 eq tacacs host 94.56.41.43
+ permit tcp host 10.222.53.24 eq tacacs host 94.56.41.43
+ permit udp host 10.210.100.2 eq ntp host 94.56.41.43
+ permit ip 94.56.41.32 0.0.0.15 any log
+ permit esp host 94.56.41.42 host 91.102.234.8
+ permit udp host 94.56.41.42 host 91.102.234.8 eq isakmp
+ --More--          permit udp host 94.56.41.42 eq isakmp host 91.102.234.8
+ permit ip host 94.56.41.42 host 91.102.234.8
+ deny   ip any any log
+ip access-list extended Internet_acl
+ permit esp host 83.111.118.226 host 94.56.41.42
+ permit udp host 83.111.118.226 host 94.56.41.42
+ permit udp host 94.56.41.42 host 83.111.118.226
+ permit esp host 94.56.41.42 host 83.111.118.226
+ deny   ip 94.56.41.32 0.0.0.15 any
+ deny   ip 10.0.0.0 0.255.255.255 any
+ deny   ip 192.168.0.0 0.0.255.255 any
+ permit udp host 85.115.54.170 eq 9020 host 94.56.41.42
+ deny   ip 127.0.0.0 0.255.255.255 any
+ deny   ip 172.16.0.0 0.15.255.255 any
+ deny   ip 224.0.0.0 15.255.255.255 any
+ deny   ip host 46.17.97.200 any
+ deny   ip host 212.19.46.69 any
+ permit tcp any any established
+ permit udp any any eq domain
+ permit esp host 83.111.235.98 host 94.56.41.42
+ permit ip host 83.111.118.226 host 94.56.41.42
+ permit ip host 94.56.41.42 host 83.111.118.226
+ permit ahp host 83.111.235.98 host 94.56.41.42
+ permit udp host 83.111.235.98 host 94.56.41.42 eq isakmp
+ permit esp host 94.56.152.217 host 94.56.41.42
+ permit ahp host 94.56.152.217 host 94.56.41.42
+ permit udp host 94.56.152.217 host 94.56.41.42 eq isakmp
+ permit tcp any any eq domain
+ permit udp any eq domain any
+ permit udp host 91.102.234.8 host 94.56.41.42 eq isakmp
+ permit udp host 91.102.234.8 eq isakmp host 94.56.41.42
+ permit esp host 91.102.234.8 host 94.56.41.42
+ permit ip host 91.102.234.8 host 94.56.41.42
+ permit udp host 91.102.235.8 host 94.56.41.42 eq isakmp
+ permit udp host 91.102.235.8 eq isakmp host 94.56.41.42
+ permit esp host 91.102.235.8 host 94.56.41.42
+ permit udp host 195.226.232.37 host 94.56.41.42 eq isakmp
+ permit esp host 195.226.232.37 host 94.56.41.42
+ permit ahp host 195.226.232.37 host 94.56.41.42
+ permit ip 195.226.232.0 0.0.0.255 any log
+ permit udp 151.253.71.192 0.0.0.7 host 224.0.0.2
+ permit ip 151.253.71.192 0.0.0.7 151.253.71.192 0.0.0.7
+ deny   ip any any log
+!
+logging host 10.222.113.252
+logging host 10.222.113.88
+logging host 10.210.104.52
+!
+!
+tacacs-server host 10.222.53.29 key 7 003012575775092D5978024D281A363500595D550E3E7F0A32
+tacacs-server host 10.222.53.28 key 7 06320E701F600B32534E5C082D071909367A626406065C3402
+tacacs-server host 10.222.53.27 key 7 13311643582206017D7D663014212025045150077D4D08760F
+access-list 10 permit 195.226.232.42
+access-list 10 permit 83.111.235.96 0.0.0.15 log
+access-list 10 deny   any log
+access-list 20 deny   any log
+!
+!
+!
+control-plane
+!
+!
+ --More--         banner login ^CC
+                                            NOTICE TO USERS                                           
+======================================================================================================
+This is an official computer system and is the property of the National Bank of Kuwait. It is for 
+authorized users only. Unauthorized users are prohibited. Users (authorized or unauthorized) have no 
+explicit or implicit expectation of privacy. Any or all uses of this system may be subject to one or 
+more of the following actions: interception, monitoring, recording, auditing, inspection and disclosing 
+to security personnel and law enforcement personnel, as well as authorized officials of other agencies,
+both domestic and foreign. By using this system, the user consents to these actions. Unauthorized or 
+improper use of this system may result in administrative disciplinary action and civil and criminal 
+penalties. By accessing this system you indicate your awareness of and consent to these terms and 
+conditions of use. Discontinue access immediately if you do not agree to the conditions stated in this 
+notice.
+======================================================================================================
+^C
+!
+line con 0
+ login authentication CON
+line aux 0
+ access-class 20 in
+ no exec
+ transport output none
+line 2
+ access-class 20 in
+ no activation-character
+ no exec
+ transport preferred none
+ transport output none
+ stopbits 1
+line vty 0 4
+ access-class VTY-ACCESS in
+ exec-timeout 5 0
+ logging synchronous
+ transport input ssh
+ transport output ssh
+line vty 5 15
+ access-class VTY-ACCESS in
+ exec-timeout 5 0
+ logging synchronous
+ transport input ssh
+ transport output ssh
+!
+scheduler allocate 20000 1000
+ntp source GigabitEthernet0/0
+ntp server 10.210.100.2
+!
+end
+
+DXB-Internet-R1#       exit
